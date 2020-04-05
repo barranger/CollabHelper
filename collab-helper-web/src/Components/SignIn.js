@@ -1,11 +1,13 @@
 import React, {useState} from "react";
 import { Link } from "@reach/router";
-import { auth } from "../firebase";
+import { auth, analytics } from "../firebase";
 
 const SignIn = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+    
+    // analytics.logEvent('Analytics from SignIn');
     const signInWithEmailAndPasswordHandler = (event, email, password) => {
         event.preventDefault();
         auth.signInWithEmailAndPassword(email, password)
