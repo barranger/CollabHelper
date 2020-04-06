@@ -1,17 +1,28 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
+import { Button, TextField, Grid, Typography } from '@material-ui/core';
 import { auth } from "../firebase";
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  box: {
+    backgroundColor: '#bccbde',
+    padding: '2.5em',
+    marginTop: '5em',
+    borderRadius: 12
+  },
+  text: {
+    marginTop: 14,
+    marginBottom: 14,
+  },
+}));
+
 
 const PasswordReset = () => {
   const [email, setEmail] = useState("");
   const [emailHasBeenSent, setEmailHasBeenSent] = useState(false);
   const [error, setError] = useState(null);
-  const onChangeHandler = event => {
-    const { name, value } = event.currentTarget;
-    if (name === "userEmail") {
-      setEmail(value);
-    }
-  };
+ 
   const sendResetEmail = event => {
     event.preventDefault();
     auth
@@ -24,13 +35,18 @@ const PasswordReset = () => {
         setError("Error resetting password");
       });
   };
+
+  const classes = useStyles();
   return (
-    <div className="mt-8">
-      <h1 className="text-xl text-center font-bold mb-3">
-        Reset your Password
-      </h1>
-      <div className="border border-blue-300 mx-auto w-11/12 md:w-2/4 rounded py-8 px-4 md:px-8">
+    <Grid container 
+    align="center"
+    justify="center"
+    className={classes.root} 
+    spacing={0}>
+    <Grid item className={classes.box} xs={6}>
         <form action="">
+
+        <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
           {emailHasBeenSent && (
             <div className="py-3 bg-green-400 w-full text-white text-center mb-3">
               An email has been sent to you!
@@ -41,24 +57,21 @@ const PasswordReset = () => {
               {error}
             </div>
           )}
-          <label htmlFor="userEmail" className="w-full block">
-            Email:
-          </label>
-          <input
+          <TextField
+            label="Email"
             type="email"
-            name="userEmail"
-            id="userEmail"
             value={email}
-            placeholder="Input your email"
-            onChange={onChangeHandler}
-            className="mb-3 w-full px-1 py-2"
+            onChange={e => setEmail(e.currentTarget.value)}
+            fullWidth
+            className={classes.text}
           />
-          <button
-            className="w-full bg-blue-400 text-white py-3"
+          <Button
+            variant="contained"
+            color="primary"
             onClick={sendResetEmail}
           >
             Send me a reset link
-          </button>
+          </Button>
         </form>
         <Link
          to ="/"
@@ -66,8 +79,8 @@ const PasswordReset = () => {
         >
           &larr; back to sign in page
         </Link>
-      </div>
-    </div>
+      </Grid>
+      </Grid>
   );
 };
 export default PasswordReset;
