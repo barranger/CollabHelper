@@ -2,13 +2,15 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/analytics";
+import "firebase/functions";
 import { firebaseConfig } from "./firebase.config";
 
 firebase.initializeApp(firebaseConfig);
-export const analytics = firebase.analytics();
 
+export const analytics = firebase.analytics();
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
+export const functions = firebase.functions();
 
 // Google authentication set-up
 const provider = new firebase.auth.GoogleAuthProvider();
