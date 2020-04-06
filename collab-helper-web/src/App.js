@@ -1,14 +1,19 @@
-import React from 'react';
-//import logo from './logo.svg';
-//import './App.css';
+import React from "react";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Container from "@material-ui/core/Container";
 import Application from "./Components/Application";
 import UserProvider from "./providers/UserProvider";
 
 function App() {
   return (
-    <UserProvider>
-      <Application />
-    </UserProvider>
+    <>
+      <CssBaseline />
+      <Container maxWidth="lg">
+        <UserProvider>
+          <Application />
+        </UserProvider>
+      </Container>
+    </>
   );
 }
 export default App;

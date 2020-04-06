@@ -55,6 +55,7 @@ const PasswordReset = () => {
           />
           <button
             className="w-full bg-blue-400 text-white py-3"
+            onClick={sendResetEmail}
           >
             Send me a reset link
           </button>
