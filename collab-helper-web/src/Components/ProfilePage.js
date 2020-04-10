@@ -31,8 +31,9 @@ const ProfilePage = () => {
 };
 
 function sendEmail() {
-    const callable = functions.httpsCallable('genericEmail');
-    return callable({ text: 'Sending email with React and SendGrid is fun!', subject: 'Email from React'}).then(console.log)
+    const callable = functions.httpsCallable('genericemail');
+    return callable({ text: 'Sending email with React and SendGrid is fun!', subject: 'Email from React'})
+    .then(console.log)
   }
 
 export default ProfilePage;
