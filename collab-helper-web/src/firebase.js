@@ -10,7 +10,7 @@ firebase.initializeApp(firebaseConfig);
 export const analytics = firebase.analytics();
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
-export const functions = firebase.functions();
+export const functions = firebase.app().functions('us-central1');
 
 // Google authentication set-up
 const provider = new firebase.auth.GoogleAuthProvider();

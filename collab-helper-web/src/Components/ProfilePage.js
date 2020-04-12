@@ -33,13 +33,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const sendEmail = () => {
-  const callable = functions.httpsCallable("genericemail");
-  return callable({
-    text: "Sending email with React and SendGrid is fun!",
-    subject: "Email from React",
-  }).then(console.log);
-};
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
