@@ -3,6 +3,7 @@ import { Link } from "@reach/router";
 import { auth, analytics, signInWithGoogle } from "../firebase";
 import {TextField, Typography, Button, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import {functions } from "../firebase";
 
 const useStyles = makeStyles((theme) => ({
   box: {
@@ -70,6 +71,17 @@ const SignIn = () => {
             }}
           >
             Sign in
+          </Button>
+          <Button onClick={() => {
+              const callable = functions.httpsCallable("testing");
+              console.log('about to call')
+              return callable({
+            
+              }).then(console.log).catch(err => {
+                console.log('got an error calling', err)
+              });
+          }}>
+            Other one
           </Button>
         </form>
         <p>or</p>
