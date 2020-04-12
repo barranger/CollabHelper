@@ -1,7 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const sgMail = require("@sendgrid/mail");
-const cors = require('cors')({ origin: true });
 const moment = require('moment');
 //const firestore = require('@google-cloud/firestore');
 // @firebase/firestore also was in here for a second
@@ -12,82 +11,116 @@ const firestore = admin.firestore();
 
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
-const path = require('path')
-require('dotenv').config()
+//const path = require('path')
+require('dotenv').config();
 
 //console.log('Process env: ', process.env);
 
 // Create and Deploy Cloud Functions
 
-exports.genericemail = functions.https.onRequest((req, res) => {
-  const { email, storeName, time } = req.body;
+exports.testing = functions.https.onCall(async (data, context) => {
+  console.log('calling the testing method');
 
-  admin.auth().getUserByEmail(email)
-    .then((userRec) => {
-      getUser(userRec)
+  if(!context.auth || !context.auth.uid) {
+    throw new functions.https.HttpsError('unauthenticated', 'No uid found in context');
+  }
 
-      const helperName = userRec.displayName;
-      const phone = userRec.phoneNumber;
-      const message1 = getMessage(storeName, time);
-      const message2 = 'Request your items soon!';
+  const uid = context.auth.uid;
+  console.log(`the user ${uid} sent the data`, data);
 
-      let userContacts = getUserContacts(userRec.uid);
+  return context.auth;
 
-      //TODO - foreach to send email to all contacts ... once we get ONE working properly :) 
-      //const toEmail = userContacts.contacts[0].email;
-      //console.log("ToEmail: ", toEmail);
+  // return new Promise((resolve, reject) => {
+  //   const v = true;
+  //   if (v) {
+  //     resolve();
+  //   } else {
+  //     reject(new functions.https.HttpsError('internal', 'Test function failed!'));
+  //   }
+  // })
+})
 
-      return cors(req, res, () => {
-        var text = `<div>
-                      <h4>Information</h4>
-                      <ul>
-                        <li>
-                          Name - ${helperName || ""}
-                        </li>
-                        <li>
-                          Email - ${email || ""}
-                        </li>
-                        <li>
-                          Phone - ${phone || ""}
-                        </li>
-                      </ul>
-                      <h4>Message</h4>
-                      <p>${message1 || ""}</p>
-                      <p>${message2 || ""}</p>
-                    </div>`;
-        const msg = {
-          to: 'annie.ellenberger+hardcodedToEmail@gmail.com',  //TODO remove hardcoded
-          from: 'annie.ellenberger@gmail.com', //TODO remove hardcoded
-          subject: `Need anything? ${helperName} is going to the store soon!`,
-          text: text,
-          html: text
-        };
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        sgMail.send(msg)
-          .then(() => {
-            res.status(200).send('{ "status": "success"}');
-            return res;
-          }).catch((err) => {
-            res.status(500).send('{ "status": "error", "errorMessage": "' + err + '"}');
-          });
-      })
+exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
+  return new Promise(async (resolve, reject) => {
+    try {
 
-    }).catch((error) => {
+      if (!context.auth) {
+        throw new functions.https.HttpsError('failed-precondition', 'Must be logged with an email address');
+      }
+
+      const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this! 
+      const storeName = data.tripStoreName;
+      const time = data.tripDateTime;
+      const uid = context.auth.uid;
+      if (!uid) {
+        throw new functions.https.HttpsError('not-found', 'No uid found in context');
+      }
+      var userRecord = await admin.auth().getUser(uid);
+
+      const helperName = userRecord.displayName || null;
+      const helperEmail = userRecord.email || null;
+      const helperPhone = userRecord.phoneNumber // TODO get this one reading from user? ... userRecById.phoneNumber;
+
+      if (!helperEmail || !helperName) {
+        throw new functions.https.HttpsError('not-found', `No helperEmail and/or name found for ${uid}`);
+      }
+
+      const toContactsObj = await getUserContacts(uid);
+      const toContacts = toContactsObj.contacts;
+      if (toContacts === undefined || toContacts.length === 0) {
+        throw new functions.https.HttpsError('not-found', `No contacts found for ${helperName}`);
+      }
+      var success = await trySendEmails(toContacts, storeName, time, helperName, helperEmail, helperPhone, fromEmail);
+
+
+      if (success) {
+        resolve();
+      } else {
+        throw new functions.https.HttpsError('internal', 'Sending emails failed');
+      }
+
+    } catch (error) {
       logError(error);
-      res.status(500).send('{ "status": "error", "errorMessage": "' + error + '"}');
-    });
+      reject(new functions.https.HttpsError('internal', `CatchBlock: ${error.message}`));
+    }
+  });
 });
 
-function getUser(userRecord) {
-  // See the UserRecord reference doc for the contents of userRecord.
-  console.log('Successfully fetched user data:', userRecord.toJSON());
+async function trySendEmails(toContacts, storeName, time, helperName, helperEmail, helperPhone, fromEmail) {
+  var text = getEmailHtml(storeName, time, helperName, helperEmail, helperPhone);
+  var i = 0;
+  try {
+    const value = toContacts.forEach(async (contact) => {
+      var toEmail = contact.email;
+      console.log(`To Email ${i++}: ${toEmail}`);
+      var msg = getEmailMessage(toEmail, fromEmail, helperName, text);
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      await sgMail.send(msg);
+    });
+    return true;
+  } catch (error) {
+    logError(error);
+    return false;
+  }
 }
+
 
 function logError(error) {
-  console.log('Error fetching user data:', error);
+  console.log('Error processing email function:', error);
 }
 
-function getMessage(storeName, time) {
+function getEmailMessage(toEmail, fromEmail, helperName, text) {
+  const msg = {
+    to: toEmail,  // toEmail, // TODO remove hardcoded
+    from: fromEmail,
+    subject: `Need anything? ${helperName} is going to the store soon!`,
+    text: text,
+    html: text
+  };
+  return msg;
+}
+
+function getDetailedMessage(storeName, time) {
   const formattedTime = formatDate(time);
   return `Taking a trip to ${storeName} at ${formattedTime}.`
 }
@@ -103,13 +136,36 @@ async function getUserContacts(uid) {
   if (!uid) return null;
   try {
     const document = await firestore.doc(`contacts/${uid}`).get();
-
     let userContacts = document.data();
-    console.log('UserContacts: ', userContacts);
     return userContacts;
-    
+
   } catch (error) {
     console.error("Error fetching user contacts", error);
   }
   return null;
+}
+
+function getEmailHtml(storeName, time, helperName, email, phone) {
+
+  const detailedMessage = getDetailedMessage(storeName, time);
+
+  const dirConstantMessage = 'Request your items soon!';
+  var text = `<div>
+  <h4>Information</h4>
+  <ul>
+    <li>
+      Name - ${helperName || ""}
+    </li>
+    <li>
+      Email - ${email || ""}
+    </li>
+    <li>
+      Phone - ${phone || ""}
+    </li>
+  </ul>
+  <h4>Message</h4>
+  <p>${detailedMessage || ""}</p>
+  <p>${dirConstantMessage || ""}</p>
+</div>`;
+  return text;
 }
