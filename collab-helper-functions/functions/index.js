@@ -24,7 +24,6 @@ exports.testing = functions.https.onCall(async (data, context) => {
   if(!context.auth || !context.auth.uid) {
     throw new functions.https.HttpsError('unauthenticated', 'No uid found in context');
   }
-
   const uid = context.auth.uid;
   console.log(`the user ${uid} sent the data`, data);
 
@@ -41,7 +40,6 @@ exports.testing = functions.https.onCall(async (data, context) => {
 })
 
 exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
-  return new Promise(async (resolve, reject) => {
     try {
 
       if (!context.auth) {
@@ -50,7 +48,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
 
       const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this! 
       const storeName = data.tripStoreName;
-      const time = data.tripDateTime;
+      const time = data.tripDateTime; // TODO update this to proper format? in combo with UI handling? 
       const uid = context.auth.uid;
       if (!uid) {
         throw new functions.https.HttpsError('not-found', 'No uid found in context');
@@ -59,7 +57,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
 
       const helperName = userRecord.displayName || null;
       const helperEmail = userRecord.email || null;
-      const helperPhone = userRecord.phoneNumber // TODO get this one reading from user? ... userRecById.phoneNumber;
+      const helperPhone = userRecord.phoneNumber || null; // TODO get this one reading from user? ... userRecById.phoneNumber;
 
       if (!helperEmail || !helperName) {
         throw new functions.https.HttpsError('not-found', `No helperEmail and/or name found for ${uid}`);
@@ -74,29 +72,30 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
 
 
       if (success) {
-        resolve();
+        return true; 
       } else {
         throw new functions.https.HttpsError('internal', 'Sending emails failed');
       }
 
     } catch (error) {
       logError(error);
-      reject(new functions.https.HttpsError('internal', `CatchBlock: ${error.message}`));
+      return new functions.https.HttpsError('internal', 'CATCH: Sending emails failed', error); 
     }
   });
-});
 
 async function trySendEmails(toContacts, storeName, time, helperName, helperEmail, helperPhone, fromEmail) {
   var text = getEmailHtml(storeName, time, helperName, helperEmail, helperPhone);
   var i = 0;
+  var bccUserEmails = [];
   try {
     const value = toContacts.forEach(async (contact) => {
-      var toEmail = contact.email;
-      console.log(`To Email ${i++}: ${toEmail}`);
-      var msg = getEmailMessage(toEmail, fromEmail, helperName, text);
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      await sgMail.send(msg);
+      bccUserEmails.push(contact.email);
+      console.log(`BCC Email ${i++}: ${contact.email}`);
     });
+    
+    var msg = getEmailMessage(bccUserEmails, fromEmail, helperName, text);
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    await sgMail.send(msg);
     return true;
   } catch (error) {
     logError(error);
@@ -109,9 +108,10 @@ function logError(error) {
   console.log('Error processing email function:', error);
 }
 
-function getEmailMessage(toEmail, fromEmail, helperName, text) {
+function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
   const msg = {
-    to: toEmail,  // toEmail, // TODO remove hardcoded
+    to: fromEmail,
+    bcc: bccUserEmails, 
     from: fromEmail,
     subject: `Need anything? ${helperName} is going to the store soon!`,
     text: text,
@@ -122,7 +122,7 @@ function getEmailMessage(toEmail, fromEmail, helperName, text) {
 
 function getDetailedMessage(storeName, time) {
   const formattedTime = formatDate(time);
-  return `Taking a trip to ${storeName} at ${formattedTime}.`
+  return `Taking a trip to <strong>${storeName}</strong> at ${formattedTime}.`
 }
 
 function formatDate(dt) {
@@ -145,27 +145,30 @@ async function getUserContacts(uid) {
   return null;
 }
 
-function getEmailHtml(storeName, time, helperName, email, phone) {
+function getEmailHtml(storeName, time, helperName, helperEmail, helperPhone) {
 
   const detailedMessage = getDetailedMessage(storeName, time);
-
-  const dirConstantMessage = 'Request your items soon!';
+  const dirConstantMessage = 'Request your items soon!';  // TODO: add URL to where people request items??
+  if (helperName) {
+    var helperNameText = `<li>Name - ${helperName}</li>`
+  }
+  if (helperEmail) {
+    var helperEmailText = `<li>Email - <a href="${helperEmail}">${helperEmail}</a></li>`
+  }
+  if (helperPhone) {
+    var helperPhoneText = `<li>Phone - ${helperPhone}</li>`
+  }
   var text = `<div>
-  <h4>Information</h4>
-  <ul>
-    <li>
-      Name - ${helperName || ""}
-    </li>
-    <li>
-      Email - ${email || ""}
-    </li>
-    <li>
-      Phone - ${phone || ""}
-    </li>
-  </ul>
   <h4>Message</h4>
   <p>${detailedMessage || ""}</p>
   <p>${dirConstantMessage || ""}</p>
+  <h4>Helper Contact Information</h4>
+  <ul>
+    ${helperNameText || ""}
+    ${helperEmailText || ""}
+    ${helperPhoneText || ""}
+  </ul>
+
 </div>`;
   return text;
 }
