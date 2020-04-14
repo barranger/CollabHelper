@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import { auth } from "../firebase";
+import { auth, analytics, signInWithGoogle } from "../firebase";
 import { generateUserDocument } from "../firebase";
-import {TextField, Typography, Button, Grid} from '@material-ui/core';
+import { TextField, Typography, Button, Grid } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
-  box: {
-    backgroundColor: theme.cardBackground,
-    padding: '2.5em',
-    marginTop: '5em',
-    borderRadius: 12
-  },
-  text: {
-    marginTop: 14,
-    marginBottom: 14,
-  },
+    box: {
+        backgroundColor: theme.cardBackground,
+        padding: '2.5em',
+        marginTop: '5em',
+        borderRadius: 12
+    },
+    text: {
+        marginTop: 14,
+        marginBottom: 14,
+    },
 }));
 
 
@@ -39,25 +39,25 @@ const SignUp = () => {
         setPassword("");
         setDisplayName("");
     };
-    
 
-  const classes = useStyles();
+
+    const classes = useStyles();
     return (
-        <Grid container 
-        align="center"
-        justify="center"
-        className={classes.root} 
-        spacing={0}>
-        <Grid item className={classes.box} xs={6}>
+        <Grid container
+            align="center"
+            justify="center"
+            className={classes.root}
+            spacing={0}>
+            <Grid item className={classes.box} xs={6}>
 
-          <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
+                <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
                 {error !== null && (
                     <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
                         {error}
                     </div>
                 )}
                 <form className="">
-                    
+
                     <TextField
                         type="text"
                         fullWidth
@@ -66,8 +66,8 @@ const SignUp = () => {
                         value={displayName}
                         onChange={e => setDisplayName(e.currentTarget.value)}
                     />
-                    
-                    
+
+
                     <TextField
                         type="email"
                         fullWidth
@@ -90,21 +90,21 @@ const SignUp = () => {
                         }}
                     >
                         Sign up
-          </Button>
-                </form>
-                <p >or</p>
-                <Button variant="contained" color="secondary"
-                >
-                    Sign In with Google
-        </Button>
-                <p >
+                    </Button>
+                    </form>
+                    <p>or</p>
+                    <Button variant="contained" color="secondary"
+                        onClick={signInWithGoogle}>
+                        Sign in with Google
+                    </Button>
+                <p>
                     Already have an account?{" "}
                     <Link to="/" className="text-blue-500 hover:text-blue-600">
                         Sign in here
           </Link>
                 </p>
             </Grid>
-            </Grid>
+        </Grid>
     );
 };
 export default SignUp;

@@ -1,7 +1,7 @@
 import React, {useState, useContext} from 'react';
 import { UserContext } from "../providers/UserProvider";
 import {ListItem, Grid, TextField, Button} from '@material-ui/core';
-import {saveNewContact} from '../services/constactService';
+import {saveNewContact} from '../services/contactService';
 
 
 
