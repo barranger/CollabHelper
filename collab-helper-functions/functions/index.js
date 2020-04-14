@@ -11,10 +11,10 @@ const firestore = admin.firestore();
 
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
-//const path = require('path')
 require('dotenv').config();
 
-//console.log('Process env: ', process.env);
+const BASE_URL = "https://collabhelper.web.app";
+const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this from code & also get a domain-specific noreply email address! 
 
 // Create and Deploy Cloud Functions
 
@@ -28,15 +28,6 @@ exports.testing = functions.https.onCall(async (data, context) => {
   console.log(`the user ${uid} sent the data`, data);
 
   return context.auth;
-
-  // return new Promise((resolve, reject) => {
-  //   const v = true;
-  //   if (v) {
-  //     resolve();
-  //   } else {
-  //     reject(new functions.https.HttpsError('internal', 'Test function failed!'));
-  //   }
-  // })
 })
 
 exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
@@ -46,14 +37,14 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('failed-precondition', 'Must be logged with an email address');
       }
 
-      const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this! 
+      const tripId = data.id;
       const storeName = data.tripStoreName;
       const time = data.tripDateTime; // TODO update this to proper format? in combo with UI handling? 
       const uid = context.auth.uid;
-      if (!uid) {
-        throw new functions.https.HttpsError('not-found', 'No uid found in context');
+      if (!uid || !tripId) {
+        throw new functions.https.HttpsError('not-found', 'No uid or tripId found');
       }
-      var userRecord = await admin.auth().getUser(uid);
+      const userRecord = await admin.auth().getUser(uid);
 
       const helperName = userRecord.displayName || null;
       const helperEmail = userRecord.email || null;
@@ -68,7 +59,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       if (toContacts === undefined || toContacts.length === 0) {
         throw new functions.https.HttpsError('not-found', `No contacts found for ${helperName}`);
       }
-      var success = await trySendEmails(toContacts, storeName, time, helperName, helperEmail, helperPhone, fromEmail);
+      var success = await trySendEmails(toContacts, storeName, time, tripId, helperName, helperEmail, helperPhone, fromEmail);
 
 
       if (success) {
@@ -78,38 +69,38 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       }
 
     } catch (error) {
-      logError(error);
+      await logError(error);
       return new functions.https.HttpsError('internal', 'CATCH: Sending emails failed', error); 
     }
   });
 
-async function trySendEmails(toContacts, storeName, time, helperName, helperEmail, helperPhone, fromEmail) {
-  var text = getEmailHtml(storeName, time, helperName, helperEmail, helperPhone);
+async function trySendEmails(toContacts, storeName, time, tripId, helperName, helperEmail, helperPhone, fromEmail) {
+  var text = await getEmailHtml(storeName, time, tripId, helperName, helperEmail, helperPhone);
   var i = 0;
   var bccUserEmails = [];
   try {
-    const value = toContacts.forEach(async (contact) => {
+    var value = toContacts.forEach(async (contact) => {
       bccUserEmails.push(contact.email);
       console.log(`BCC Email ${i++}: ${contact.email}`);
     });
     
-    var msg = getEmailMessage(bccUserEmails, fromEmail, helperName, text);
+    var msg = await getEmailMessage(bccUserEmails, fromEmail, helperName, text);
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     await sgMail.send(msg);
     return true;
   } catch (error) {
-    logError(error);
+    await logError(error);
     return false;
   }
 }
 
 
-function logError(error) {
+async function logError(error) {
   console.log('Error processing email function:', error);
 }
 
-function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
-  const msg = {
+async function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
+  var msg = {
     to: fromEmail,
     bcc: bccUserEmails, 
     from: fromEmail,
@@ -120,12 +111,13 @@ function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
   return msg;
 }
 
-function getDetailedMessage(storeName, time) {
-  const formattedTime = formatDate(time);
+async function getDetailedMessage(storeName, time) {
+  // TODO - split into date & time parts for formatting email .... 
+  var formattedTime = await formatDateTime(time);
   return `Taking a trip to <strong>${storeName}</strong> at ${formattedTime}.`
 }
 
-function formatDate(dt) {
+async function formatDateTime(dt) {
   if (!dt) {
     return 'N/A';
   }
@@ -140,20 +132,24 @@ async function getUserContacts(uid) {
     return userContacts;
 
   } catch (error) {
-    console.error("Error fetching user contacts", error);
+    await logError(error);
+    return null;
   }
-  return null;
 }
 
-function getEmailHtml(storeName, time, helperName, helperEmail, helperPhone) {
+async function getEmailHtml(storeName, time, tripId, helperName, helperEmail, helperPhone) {
 
-  const detailedMessage = getDetailedMessage(storeName, time);
-  const dirConstantMessage = 'Request your items soon!';  // TODO: add URL to where people request items??
+  var detailedMessage = await getDetailedMessage(storeName, time);
+
+  var requestURL = `${BASE_URL}/trip/${tripId}`
+
+  var dirConstantMessage = `Request items soon, <a href="${requestURL}">by visiting Collab(oration) Helper here</a>!`;  // TODO: add URL to where people request items??
+
   if (helperName) {
     var helperNameText = `<li>Name - ${helperName}</li>`
   }
   if (helperEmail) {
-    var helperEmailText = `<li>Email - <a href="${helperEmail}">${helperEmail}</a></li>`
+    var helperEmailText = `<li>Email - <a href="mailto: ${helperEmail}">${helperEmail}</a></li>`
   }
   if (helperPhone) {
     var helperPhoneText = `<li>Phone - ${helperPhone}</li>`
