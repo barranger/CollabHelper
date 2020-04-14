@@ -45,7 +45,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('not-found', 'No uid or tripId found');
       }
       const userRecord = await admin.auth().getUser(uid);
-
+      console.log('Successfully fetched user data:', userRecord.toJSON());
       const helperName = userRecord.displayName || null;
       const helperEmail = userRecord.email || null;
       const helperPhone = userRecord.phoneNumber || null; // TODO get this one reading from user? ... userRecById.phoneNumber;
