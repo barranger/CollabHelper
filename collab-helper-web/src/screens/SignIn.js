@@ -7,7 +7,7 @@ import {functions } from "../firebase";
 
 const useStyles = makeStyles((theme) => ({
   box: {
-    backgroundColor: '#bccbde',
+    backgroundColor: theme.cardBackground,
     padding: '2.5em',
     marginTop: '5em',
     borderRadius: 12

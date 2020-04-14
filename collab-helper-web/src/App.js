@@ -2,14 +2,14 @@ import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
-import Application from "./Components/Application";
+import Application from "./screens/Application";
 import UserProvider from "./providers/UserProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     justifyContent: 'center',
-    backgroundColor: '#c2dde6',
+    backgroundColor: theme.background,
     color: 'white',
     minHeight: '100vh'
   },

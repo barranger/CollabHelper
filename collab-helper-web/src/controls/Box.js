@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
   box: {
-    backgroundColor: "#bccbde",
+    backgroundColor: theme.palette.cardBackground,
     padding: "2.5em",
     borderRadius: 12,
     margin: "1em",
