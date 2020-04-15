@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
     width: 120,
     height: 120,
   },
+  button: {
+    textDecoration: 'none'
+  }
 }));
 
 const Sidebar = props => {
@@ -37,7 +40,7 @@ const Sidebar = props => {
             <Button onClick={() => auth.signOut()}>Sign out</Button>
 
 
-              <Link to={link}>
+              <Link to={link} className={classes.button}>
                 <Button variant="contained" color="secondary">{text}</Button>
               </Link>
             

@@ -3,6 +3,7 @@ import { Link } from "@reach/router";
 import { Button, TextField, Grid, Typography } from '@material-ui/core';
 import { auth } from "../firebase";
 import { makeStyles } from '@material-ui/core/styles';
+import Box from '../controls/Box';
 
 const useStyles = makeStyles((theme) => ({
   box: {
@@ -15,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 14,
     marginBottom: 14,
   },
+  button: {
+    marginBottom: 14
+  }
 }));
 
 
@@ -44,16 +48,17 @@ const PasswordReset = () => {
     className={classes.root} 
     spacing={0}>
     <Grid item className={classes.box} xs={6}>
+      <Box>
         <form action="">
 
         <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
           {emailHasBeenSent && (
-            <div className="py-3 bg-green-400 w-full text-white text-center mb-3">
+            <div >
               An email has been sent to you!
             </div>
           )}
           {error !== null && (
-            <div className="py-3 bg-red-600 w-full text-white text-center mb-3">
+            <div>
               {error}
             </div>
           )}
@@ -65,7 +70,7 @@ const PasswordReset = () => {
             fullWidth
             className={classes.text}
           />
-          <Button
+          <Button  className={classes.button}
             variant="contained"
             color="primary"
             onClick={sendResetEmail}
@@ -73,12 +78,8 @@ const PasswordReset = () => {
             Send me a reset link
           </Button>
         </form>
-        <Link
-         to ="/"
-          className="my-2 text-blue-700 hover:text-blue-800 text-center block"
-        >
-          &larr; back to sign in page
-        </Link>
+        <Link to ="/"> &larr; back to sign in page</Link>
+        </Box>
       </Grid>
       </Grid>
   );

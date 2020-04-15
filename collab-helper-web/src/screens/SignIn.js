@@ -3,15 +3,9 @@ import { Link } from "@reach/router";
 import { auth, analytics, signInWithGoogle } from "../firebase";
 import {TextField, Typography, Button, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {functions } from "../firebase";
+import Box from "../controls/Box";
 
 const useStyles = makeStyles((theme) => ({
-  box: {
-    backgroundColor: theme.cardBackground,
-    padding: '2.5em',
-    marginTop: '5em',
-    borderRadius: 12
-  },
   text: {
     marginTop: 14,
     marginBottom: 14,
@@ -35,12 +29,14 @@ const SignIn = () => {
   const classes = useStyles();
 
   return (
+
     <Grid container 
     align="center"
     justify="center"
     className={classes.root} 
     spacing={0}>
     <Grid item className={classes.box} xs={6}>
+      <Box>
        
         {error !== null && (
           <div >
@@ -72,17 +68,6 @@ const SignIn = () => {
           >
             Sign in
           </Button>
-          <Button onClick={() => {
-              const callable = functions.httpsCallable("testing");
-              console.log('about to call')
-              return callable({
-            
-              }).then(console.log).catch(err => {
-                console.log('got an error calling', err)
-              });
-          }}>
-            Other one
-          </Button>
         </form>
         <p>or</p>
         <Button variant="contained" color="secondary"
@@ -92,7 +77,7 @@ const SignIn = () => {
         <p>
           <Link to="signUp">Sign up here</Link> | <Link to="passwordReset">Forgot Password?</Link>
         </p>
-        
+        </Box>
      </Grid>
      </Grid>
   );
