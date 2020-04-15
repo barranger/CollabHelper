@@ -3,12 +3,9 @@ import { Link } from "@reach/router";
 import { auth, analytics, signInWithGoogle } from "../firebase";
 import {TextField, Typography, Button, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import Box from "../controls/Box";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
   text: {
     marginTop: 14,
     marginBottom: 14,
@@ -32,8 +29,14 @@ const SignIn = () => {
   const classes = useStyles();
 
   return (
-    <Grid container className={classes.root} spacing={2}>
-    <Grid item xs={6}>
+
+    <Grid container 
+    align="center"
+    justify="center"
+    className={classes.root} 
+    spacing={0}>
+    <Grid item className={classes.box} xs={6}>
+      <Box>
        
         {error !== null && (
           <div >
@@ -66,25 +69,15 @@ const SignIn = () => {
             Sign in
           </Button>
         </form>
-        <p className="text-center my-3">or</p>
+        <p>or</p>
         <Button variant="contained" color="secondary"
           onClick={signInWithGoogle}>
           Sign in with Google
         </Button>
-        <p className="text-center my-3">
-          Don't have an account?{" "}
-          <Link to="signUp" className="text-blue-500 hover:text-blue-600">
-            Sign up here
-          </Link>{" "}
-          <br />{" "}
-          <Link
-            to="passwordReset"
-            className="text-blue-500 hover:text-blue-600"
-          >
-            Forgot Password?
-          </Link>
+        <p>
+          <Link to="signUp">Sign up here</Link> | <Link to="passwordReset">Forgot Password?</Link>
         </p>
-        
+        </Box>
      </Grid>
      </Grid>
   );
