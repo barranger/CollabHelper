@@ -26,10 +26,10 @@ const Sidebar = props => {
   const classes = useStyles();
   const user = useContext(UserContext);
   const { photoURL, displayName, email } = user;
+
   return ( 
     <Location>
     {({ location }) => {
-      console.log('loc', location)
       const link = location.pathname === '/trip' ? '/' : '/trip';
       const text = location.pathname === '/trip' ? 'Modify My Network' : 'Schedule a Grocery Trip';
       return(  
@@ -37,7 +37,10 @@ const Sidebar = props => {
             <Avatar className={classes.profilePic} src={photoURL} />
             <Typography variant="h4">{displayName}</Typography>
             <Typography variant="h6">{email}</Typography>
-            <Button onClick={() => auth.signOut()}>Sign out</Button>
+            <Button onClick={async () => {
+              await auth.signOut();
+              document.location.href = '/';
+            }}>Sign out</Button>
 
 
               <Link to={link} className={classes.button}>
