@@ -14,6 +14,7 @@ const firestore = admin.firestore();
 require('dotenv').config();
 
 const BASE_URL = "https://collabhelper.web.app";
+
 const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this from code & also get a domain-specific noreply email address! 
 
 // Create and Deploy Cloud Functions
@@ -38,17 +39,25 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       }
 
       const tripId = data.id;
-      const storeName = data.tripStoreName;
-      const time = data.tripDateTime; // TODO update this to proper format? in combo with UI handling? 
       const uid = context.auth.uid;
       if (!uid || !tripId) {
         throw new functions.https.HttpsError('not-found', 'No uid or tripId found');
       }
+      
+      const storeName = data.tripStoreName;
+      const tripDateTime = data.tripDateTime; 
+      
+      const isValidDateTime = tripDateTime && await validateDateTime(tripDateTime);
+
+      if (!storeName || !isValidDateTime) {
+        throw new functions.https.HttpsError('not-found', 'No location or valid datetime found');
+      }
       const userRecord = await admin.auth().getUser(uid);
       console.log('Successfully fetched user data:', userRecord.toJSON());
+
       const helperName = userRecord.displayName || null;
       const helperEmail = userRecord.email || null;
-      const helperPhone = userRecord.phoneNumber || null; // TODO get this one reading from user? ... userRecById.phoneNumber;
+      const helperPhone = userRecord.phoneNumber || null; // TODO add this to contact entry UI? would require switching to read User from datastore too, or custom attributes(?)
 
       if (!helperEmail || !helperName) {
         throw new functions.https.HttpsError('not-found', `No helperEmail and/or name found for ${uid}`);
@@ -59,7 +68,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       if (toContacts === undefined || toContacts.length === 0) {
         throw new functions.https.HttpsError('not-found', `No contacts found for ${helperName}`);
       }
-      var success = await trySendEmails(toContacts, storeName, time, tripId, helperName, helperEmail, helperPhone, fromEmail);
+      var success = await trySendEmails(toContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail);
 
 
       if (success) {
@@ -74,8 +83,8 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
     }
   });
 
-async function trySendEmails(toContacts, storeName, time, tripId, helperName, helperEmail, helperPhone, fromEmail) {
-  var text = await getEmailHtml(storeName, time, tripId, helperName, helperEmail, helperPhone);
+async function trySendEmails(toContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail) {
+  var text = await getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone);
   var i = 0;
   var bccUserEmails = [];
   try {
@@ -111,10 +120,10 @@ async function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
   return msg;
 }
 
-async function getDetailedMessage(storeName, time) {
+async function getDetailedMessage(storeName, tripDateTime) {
   // TODO - split into date & time parts for formatting email .... 
-  var formattedTime = await formatDateTime(time);
-  return `Taking a trip to <strong>${storeName}</strong> at ${formattedTime}.`
+  var formattedDateTime = await formatDateTime(tripDateTime);
+  return `Taking a trip to <strong>${storeName}</strong> at ${formattedDateTime}.`
 }
 
 async function formatDateTime(dt) {
@@ -122,6 +131,10 @@ async function formatDateTime(dt) {
     return 'N/A';
   }
   return moment(dt, 'YYYY-MM-DDThh:mm:ss').format('MM/DD/YYYY hh:mm a')
+}
+
+async function validateDateTime(dt) {
+  return moment(dt, 'YYYY-MM-DDThh:mm:ss', true).isValid();
 }
 
 async function getUserContacts(uid) {
@@ -137,9 +150,9 @@ async function getUserContacts(uid) {
   }
 }
 
-async function getEmailHtml(storeName, time, tripId, helperName, helperEmail, helperPhone) {
+async function getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone) {
 
-  var detailedMessage = await getDetailedMessage(storeName, time);
+  var detailedMessage = await getDetailedMessage(storeName, tripDateTime);
 
   var requestURL = `${BASE_URL}/trip/${tripId}`
 
