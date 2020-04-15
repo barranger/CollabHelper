@@ -47,13 +47,14 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       const storeName = data.tripStoreName;
       const tripDateTime = data.tripDateTime; 
       
-      const isValidDateTime = tripDateTime && await validateDateTime(tripDateTime);
+      const isValidDateTime = await validateDateTime(tripDateTime);
 
       if (!storeName || !isValidDateTime) {
         throw new functions.https.HttpsError('not-found', 'No location or valid datetime found');
       }
-      const userRecord = await admin.auth().getUser(uid);
-      console.log('Successfully fetched user data:', userRecord.toJSON());
+
+      const userRecord = await getUserRecord(uid); //await admin.auth().getUser(uid);
+      console.log('Successfully fetched user data:', JSON.stringify(userRecord));
 
       const helperName = userRecord.displayName || null;
       const helperEmail = userRecord.email || null;
@@ -134,7 +135,29 @@ async function formatDateTime(dt) {
 }
 
 async function validateDateTime(dt) {
-  return moment(dt, 'YYYY-MM-DDThh:mm:ss', true).isValid();
+  const mDateTime = moment(dt,'YYYY-MM-DDThh:mm:ss');
+  if (!mDateTime.isValid()) {
+    logError(`User submitted invalid tripDateTime. Rejecting request. Val: ${dt}`);
+    return false;
+  } else if (!mDateTime.isAfter()) {
+    logError(`User submitted tripDateTime before now. Rejecting request. Val: ${dt}`);
+    return false;
+  }
+  return true;
+}
+
+async function getUserRecord(uid) {
+  if (!uid) return null;
+  try {
+    const document = await firestore.doc(`users/${uid}`).get();
+    let userRecord = document.data();
+    return userRecord;
+
+  } catch (error) {
+    await logError(error);
+    return null;
+  }
+
 }
 
 async function getUserContacts(uid) {
