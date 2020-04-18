@@ -36,7 +36,7 @@ const GroceryTrip = props => {
     <>
       <TextField fullWidth label="Where are you going" onChange={e => setWhere(e.target.value)} value={where} />
       <TextField fullWidth label="About when will you be leaving" onChange={e => setWhen(e.target.value)} value={when} />
-      <Button className={classes.button} variant="contained" color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
+      <Button className={classes.button} variant="contained" disabled={!where || !when} color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
     </>
   )
 }
