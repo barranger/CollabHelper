@@ -91,6 +91,15 @@ const RequestItem = ({ tripId }) => {
               </ul>
             </>
           )}
+
+          {alreadyReq && (
+            <>
+              <Typography>
+                You have requested:
+              </Typography>
+              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(i => <Typography key={i.user.uid}>{i.what}</Typography>)}
+            </>
+          )}
         </form>
       </Box>
       <RequestDialog open={open} setOpen={setOpen} requestItem={requestItem} />
