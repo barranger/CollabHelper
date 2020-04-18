@@ -5,7 +5,6 @@ import { functions } from "../firebase";
 import { UserContext } from "../providers/UserProvider";
 import {saveNewTrip} from '../services/tripService';
 import { DateTimePicker } from "@material-ui/pickers";
-import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -15,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
 const GroceryTrip = props => {
   const [where, setWhere] = useState('');
-  const [when, setWhen] = useState(new moment());
+  const [when, setWhen] = useState(null);
 
   const user = useContext(UserContext);
   const classes = useStyles();
