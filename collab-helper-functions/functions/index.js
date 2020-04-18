@@ -22,7 +22,7 @@ const fromEmail = 'annie.ellenberger@gmail.com'; // TODO remove this from code &
 exports.testing = functions.https.onCall(async (data, context) => {
   console.log('calling the testing method');
 
-  if(!context.auth || !context.auth.uid) {
+  if (!context.auth || !context.auth.uid) {
     throw new functions.https.HttpsError('unauthenticated', 'No uid found in context');
   }
   const uid = context.auth.uid;
@@ -32,60 +32,109 @@ exports.testing = functions.https.onCall(async (data, context) => {
 })
 
 exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
-    try {
+  try {
 
-      if (!context.auth) {
-        throw new functions.https.HttpsError('failed-precondition', 'Must be logged with an email address');
-      }
-
-      const tripId = data.id;
-      const uid = context.auth.uid;
-      if (!uid || !tripId) {
-        throw new functions.https.HttpsError('not-found', 'No uid or tripId found');
-      }
-      
-      const storeName = data.tripStoreName;
-      const tripDateTime = data.tripDateTime; 
-      
-      const isValidDateTime = await validateDateTime(tripDateTime);
-
-      if (!storeName || !isValidDateTime) {
-        throw new functions.https.HttpsError('invalid-argument', 'Invalid location or datetime');
-      }
-
-      const userRecord = await getUserRecord(uid); //await admin.auth().getUser(uid);
-      console.log('Successfully fetched user data:', JSON.stringify(userRecord));
-
-      const helperName = userRecord.displayName || null;
-      const helperEmail = userRecord.email || null;
-      const helperPhone = userRecord.phoneNumber || null; // TODO add this to contact entry UI? would require switching to read User from datastore too, or custom attributes(?)
-
-      if (!helperEmail || !helperName) {
-        throw new functions.https.HttpsError('not-found', `No helperEmail and/or name found for ${uid}`);
-      }
-
-      const toContactsObj = await getUserContacts(uid);
-      const toContacts = toContactsObj.contacts;
-      if (toContacts === undefined || toContacts.length === 0) {
-        throw new functions.https.HttpsError('not-found', `No contacts found for ${helperName}`);
-      }
-      var success = await trySendEmails(toContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail);
-
-
-      if (success) {
-        return true; 
-      } else {
-        throw new functions.https.HttpsError('internal', 'Sending emails failed');
-      }
-
-    } catch (error) {
-      await logError(error);
-      return new functions.https.HttpsError('internal', 'CATCH: Sending emails failed', error); 
+    if (!context.auth) {
+      throw new functions.https.HttpsError('failed-precondition', 'Must be logged with an email address');
     }
-  });
 
-async function trySendEmails(toContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail) {
-  var text = await getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone);
+    const tripId = data.id;
+    const uid = context.auth.uid;
+    if (!uid || !tripId) {
+      throw new functions.https.HttpsError('not-found', 'No uid or tripId found');
+    }
+
+    const storeName = data.tripStoreName;
+    const tripDateTime = data.tripDateTime;
+
+    const isValidDateTime = await validateDateTime(tripDateTime);
+
+    if (!storeName || !isValidDateTime) {
+      throw new functions.https.HttpsError('not-found', 'No location or valid datetime found');
+    }
+
+    const userRecord = await getUserRecord(uid); //await admin.auth().getUser(uid);
+    console.log('Successfully fetched user data:', JSON.stringify(userRecord));
+
+    const helperName = userRecord.displayName || null;
+    const helperEmail = userRecord.email || null;
+    const helperPhone = userRecord.phoneNumber || null; // TODO add this to contact entry UI? would require switching to read User from datastore too, or custom attributes(?)
+
+    if (!helperEmail || !helperName) {
+      throw new functions.https.HttpsError('not-found', `No helperEmail and/or name found for ${uid}`);
+    }
+
+    const toContactsObj = await getUserContacts(uid);
+    const toContacts = toContactsObj.contacts;
+    if (toContacts === undefined || toContacts.length === 0) {
+      throw new functions.https.HttpsError('not-found', `No contacts found for ${helperName}`);
+    }
+
+    var userContactsSplit = await splitUserContacts(toContacts);
+
+    var newUserContacts = userContactsSplit[0];
+    console.log('newUserContacts: ', newUserContacts);
+
+    var existingUserContacts = userContactsSplit[1];
+    console.log('existingUserContacts: ', existingUserContacts);
+
+
+    if (newUserContacts.length > 0) {
+      var successNewUsers = await trySendEmails(newUserContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail, true);
+    }
+    if (existingUserContacts.length > 0) {
+      var successExistingUsers = await trySendEmails(existingUserContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail, false);
+    }
+
+    if (successNewUsers || successExistingUsers) {
+      return true;
+    } else {
+      throw new functions.https.HttpsError('internal', 'Sending emails to contacts failed');
+    }
+
+  } catch (error) {
+    await logError(error);
+    return new functions.https.HttpsError('internal', 'CATCH: Sending emails failed', error);
+  }
+});
+
+async function splitUserContacts(toContacts) {
+  var usersRef = firestore.collection('users');
+  var newUserContacts = [];
+  var existingUserContacts = [];
+  try {
+    await toContacts.reduce(async (memo, contact,) => {
+      await memo;
+      console.log('Contact is: ', contact);
+
+      let query = usersRef.where("email", "==", contact.email);
+      var userDocument = await query.limit(1).get();
+
+      console.log('UserDocument empty: ', userDocument.empty);
+
+      if (userDocument.empty) {
+        newUserContacts.push(contact);
+      } else {
+        let userDocs = userDocument.docs;
+        for (let userDoc of userDocs) {
+          var userDocData = userDoc.data();
+          //console.log('UserDocument is: ', userDocData);
+          existingUserContacts.push(contact);
+        }
+      }
+    }, {});
+    return [newUserContacts, existingUserContacts];
+  } catch (error) {
+    await logError(error);
+    return false;
+  }
+}
+
+async function trySendEmails(toContacts, storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, fromEmail, newUsersFlag) {
+
+  var text = await getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, newUsersFlag);
+  var subject = await getEmailSubject(storeName, helperName, newUsersFlag);
+
   var i = 0;
   var bccUserEmails = [];
   try {
@@ -93,8 +142,8 @@ async function trySendEmails(toContacts, storeName, tripDateTime, tripId, helper
       bccUserEmails.push(contact.email);
       console.log(`BCC Email ${i++}: ${contact.email}`);
     });
-    
-    var msg = await getEmailMessage(bccUserEmails, fromEmail, helperName, text);
+
+    var msg = await getEmailMessage(fromEmail, bccUserEmails, text, subject);
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     await sgMail.send(msg);
     return true;
@@ -104,17 +153,24 @@ async function trySendEmails(toContacts, storeName, tripDateTime, tripId, helper
   }
 }
 
+async function getEmailSubject(storeName, helperName, newUsersFlag) {
+  if (newUsersFlag) {
+    return `Welcome to Collab(oration) Helper. ${helperName} is going to ${storeName} soon! Need anything?`;
+  } else {
+    return `${helperName} is going to ${storeName} soon! Need anything?`;
+  }
+}
 
 async function logError(error) {
   console.log('Error processing email function:', error);
 }
 
-async function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
+async function getEmailMessage(fromEmail, bccUserEmails, text, subject) {
   var msg = {
     to: fromEmail,
-    bcc: bccUserEmails, 
+    bcc: bccUserEmails,
     from: fromEmail,
-    subject: `Need anything? ${helperName} is going to the store soon!`,
+    subject: subject,
     text: text,
     html: text
   };
@@ -122,7 +178,6 @@ async function getEmailMessage(bccUserEmails, fromEmail, helperName, text) {
 }
 
 async function getDetailedMessage(storeName, tripDateTime) {
-  // TODO - split into date & time parts for formatting email .... 
   var formattedDateTime = await formatDateTime(tripDateTime);
   return `Taking a trip to <strong>${storeName}</strong> at ${formattedDateTime}.`
 }
@@ -135,7 +190,7 @@ async function formatDateTime(dt) {
 }
 
 async function validateDateTime(dt) {
-  const mDateTime = moment(dt,'YYYY-MM-DDThh:mm:ss');
+  const mDateTime = moment(dt, 'YYYY-MM-DDThh:mm:ss');
   if (!mDateTime.isValid()) {
     logError(`User submitted invalid tripDateTime. Rejecting request. Val: ${dt}`);
     return false;
@@ -173,8 +228,15 @@ async function getUserContacts(uid) {
   }
 }
 
-async function getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone) {
+async function getEmailHtml(storeName, tripDateTime, tripId, helperName, helperEmail, helperPhone, newUsersFlag) {
 
+  if (newUsersFlag) {
+    var newUserText =
+      `<h4>Introduction</h4>
+        <p>Welcome to Collab(oration) Helper! ${helperName} has invited you to be included in their network of family & friends collaborating on grocery shopping or other errands. 
+           Please visit ${BASE_URL} to sign up and request items, configure your own network, and start collaborating with your family & friends!.
+        </p>`
+  }
   var detailedMessage = await getDetailedMessage(storeName, tripDateTime);
 
   var requestURL = `${BASE_URL}/trip/${tripId}`
@@ -190,17 +252,20 @@ async function getEmailHtml(storeName, tripDateTime, tripId, helperName, helperE
   if (helperPhone) {
     var helperPhoneText = `<li>Phone - ${helperPhone}</li>`
   }
-  var text = `<div>
-  <h4>Message</h4>
-  <p>${detailedMessage || ""}</p>
-  <p>${dirConstantMessage || ""}</p>
-  <h4>Helper Contact Information</h4>
-  <ul>
-    ${helperNameText || ""}
-    ${helperEmailText || ""}
-    ${helperPhoneText || ""}
-  </ul>
 
-</div>`;
+  var text =
+    `<div>
+    ${newUserText || ""}
+      <h4>Message</h4>
+        <p>${detailedMessage || ""}</p>
+        <p>${dirConstantMessage || ""}</p>
+      <h4>Helper Contact Information</h4>
+      <ul>
+        ${helperNameText || ""}
+        ${helperEmailText || ""}
+        ${helperPhoneText || ""}
+      </ul>
+    </div>`;
+
   return text;
 }
