@@ -15,6 +15,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const renderMyTrip = ( myTrip, trip ) => {
+  if(!myTrip) {
+    return;
+  }
+
+  const { items } = trip;
+
+  if(!items) {
+    return <Typography>No items have been requested yet.</Typography>
+  }
+
+  return (
+    <>
+      <Typography>
+        Here are the Items people have requested for you to pick up
+      </Typography>
+
+
+      <ul>
+        { items.map((i) => (
+          <li key={i.user.uid}>
+            {i.user.displayName}: {i.what}
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
 const RequestItem = ({ tripId }) => {
   const [loaded, setLoaded] = useState(false);
   const [trip, setTrip] = useState({});
@@ -77,20 +106,7 @@ const RequestItem = ({ tripId }) => {
             </>
           )}
 
-          {myTrip && (
-            <>
-              <Typography>
-                Here are the Items people have requested for you to pick up
-              </Typography>
-              <ul>
-                {trip.items.map((i) => (
-                  <li>
-                    {i.user.displayName}: {i.what}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+          { renderMyTrip( myTrip, trip ) }
 
           {alreadyReq && (
             <>
