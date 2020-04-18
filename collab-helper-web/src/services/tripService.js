@@ -22,9 +22,9 @@ export const getTripById = async (id) => {
   return snapshot.data();
 }
 
-export const addItemToTrip = async (user, tripId, what) => {
+export const addItemToTrip = async (user, tripId, requestedItem) => {
   if(!user) return;
 
   const docRef = firestore.doc(`trips/${tripId}`);
-  await docRef.update({ items: firebase.firestore.FieldValue.arrayUnion({ user, what})})
+  await docRef.update({ items: firebase.firestore.FieldValue.arrayUnion({ user, requestedItem})})
 }

@@ -27,7 +27,10 @@ const GroceryTrip = props => {
       tripStoreName: where,
       tripDateTime:  when, //"2020-04-12T09:00:00"
       id
-    }).then(console.log).catch(err => {
+    }).then( result => {
+      console.log('result is', result)
+      document.location = `/trip/${id}`;
+    }).catch(err => {
       console.log('got an error calling', err)
     });
   };
