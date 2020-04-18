@@ -42,7 +42,7 @@ const GroceryTrip = props => {
         label="About when will you be leaving"
         showTodayButton
       />
-      <Button className={classes.button} variant="contained" color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
+      <Button className={classes.button} variant="contained" disabled={!where || !when} color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
       </>
   )
 }
