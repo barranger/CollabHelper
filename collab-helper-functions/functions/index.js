@@ -50,7 +50,7 @@ exports.notifyTripCreated = functions.https.onCall(async (data, context) => {
       const isValidDateTime = await validateDateTime(tripDateTime);
 
       if (!storeName || !isValidDateTime) {
-        throw new functions.https.HttpsError('not-found', 'No location or valid datetime found');
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid location or datetime');
       }
 
       const userRecord = await getUserRecord(uid); //await admin.auth().getUser(uid);
