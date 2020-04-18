@@ -24,7 +24,7 @@ const ProfilePage = () => {
   if (contacts) {
     return (
       <List subheader={<ListSubheader>People in your network</ListSubheader>}>
-        {contacts.map((p) => (<ContactListItem contact={p} />))}
+        {contacts.map((p) => (<ContactListItem key={p.email} contact={p} />))}
         <NewContact onAdded={() => setLoaded(false)}/>
       </List>
     );
