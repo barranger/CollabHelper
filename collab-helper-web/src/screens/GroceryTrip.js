@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { functions } from "../firebase";
 import { UserContext } from "../providers/UserProvider";
 import {saveNewTrip} from '../services/tripService';
-import { DateTimePicker } from "@material-ui/pickers";
+import { KeyboardDateTimePicker } from "@material-ui/pickers";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -34,13 +34,16 @@ const GroceryTrip = props => {
   return (
     <>
       <TextField fullWidth label="Where are you going" onChange={e => setWhere(e.target.value)} value={where} />
-      <DateTimePicker
+      <KeyboardDateTimePicker
+        variant="inline"
         value={when}
-        disablePast
-        fullWidth
         onChange={setWhen}
         label="About when will you be leaving"
-        showTodayButton
+        onError={console.log}
+        minDate={new Date()}
+        disablePast="true"
+        format="MM/DD/YYYY hh:mm a"
+        fullWidth
       />
       <Button className={classes.button} variant="contained" disabled={!where || !when} color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
       </>
