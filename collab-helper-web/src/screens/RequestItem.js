@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { getTripById, addItemToTrip } from "../services/tripService";
 import RequestDialog from "../controls/RequestDialog";
 import { UserContext } from "../providers/UserProvider";
+import MultiListView from "../controls/MultiListView";
 
 const useStyles = makeStyles((theme) => ({
   whiteBg: {
@@ -15,14 +16,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const renderMyTrip = ( myTrip, trip ) => {
-  if(!myTrip) {
+const renderMyTrip = (myTrip, trip) => {
+  if (!myTrip) {
     return;
   }
 
   const { items } = trip;
 
-  if(!items) {
+  if (!items) {
     return <Typography>No items have been requested yet.</Typography>
   }
 
@@ -34,7 +35,7 @@ const renderMyTrip = ( myTrip, trip ) => {
 
 
       <ul>
-        { items.map((i) => (
+        {items.map((i) => (
           <li key={i.user.uid}>
             {i.user.displayName}: {i.requestedItem}
           </li>
@@ -48,6 +49,7 @@ const RequestItem = ({ tripId }) => {
   const [loaded, setLoaded] = useState(false);
   const [trip, setTrip] = useState({});
   const [item, setItem] = useState("");
+  const [itemList, setItemList] = useState("");
   const [open, setOpen] = useState(false);
   const classes = useStyles();
 
@@ -55,7 +57,7 @@ const RequestItem = ({ tripId }) => {
 
   const requestItem = () => {
     console.log("I will add the item", item);
-    
+
     addItemToTrip(user, tripId, item);
   };
   useEffect(() => {
@@ -76,6 +78,8 @@ const RequestItem = ({ tripId }) => {
 
   return (
     <div>
+      <MultiListView>
+      </MultiListView>
       <Box>
         <form
           onSubmit={(e) => {
@@ -94,6 +98,15 @@ const RequestItem = ({ tripId }) => {
                 fullWidth
                 onChange={(e) => setItem(e.target.value)}
               />
+              <TextField
+                //id="standard-textarea"
+                value={itemList}
+                label="What items would you like to request?"
+                fullWidth
+                placeholder="Placeholder"
+                onChange={(e) => setItemList(e.target.value)}
+                multiline
+              />
               <Button
                 className={classes.button}
                 disabled={!item || item.length === 0}
@@ -106,7 +119,7 @@ const RequestItem = ({ tripId }) => {
             </>
           )}
 
-          { renderMyTrip( myTrip, trip ) }
+          {renderMyTrip(myTrip, trip)}
 
           {alreadyReq && (
             <>
