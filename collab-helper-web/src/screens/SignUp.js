@@ -2,21 +2,22 @@ import React, { useState } from "react";
 import { Link } from "@reach/router";
 import { auth } from "../firebase";
 import { generateUserDocument } from "../firebase";
-import { TextField, Typography, Button, Grid } from "@material-ui/core";
-import Box from "../controls/Box";
+import { Typography, Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
-  box: {
-    backgroundColor: theme.cardBackground,
-    padding: "2.5em",
-    marginTop: "5em",
-    borderRadius: 12,
-  },
   text: {
     marginTop: 14,
     marginBottom: 14,
   },
+  header: {
+    color: theme.palette.primary.main,
+    fontWeight: '900',
+  },
+  root: {
+    marginTop: '4em',
+  }
 }));
 
 const SignUp = () => {
@@ -54,18 +55,15 @@ const SignUp = () => {
       className={classes.root}
       spacing={0}
     >
-      <Grid item className={classes.box} xs={6}>
-        <Box>
-          <Typography className={classes.text} variant="h4" component="h2">
-            Collab(oration) Helper
-          </Typography>
+      <Grid item className={classes.box} xs={12} lg={4}>
+          <Typography className={[classes.text, classes.header]} variant="h4" component="h2">CollabHelper</Typography>
           {error !== null && (
             <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
               {error}
             </div>
           )}
           <form className="">
-            <TextField
+            <TextBox
               type="text"
               fullWidth
               className={classes.text}
@@ -74,7 +72,7 @@ const SignUp = () => {
               onChange={(e) => setDisplayName(e.currentTarget.value)}
             />
 
-            <TextField
+            <TextBox
               type="email"
               fullWidth
               className={classes.text}
@@ -82,7 +80,7 @@ const SignUp = () => {
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
             />
-            <TextField
+            <TextBox
               type="password"
               fullWidth
               className={classes.text}
@@ -92,6 +90,7 @@ const SignUp = () => {
             />
             <Button
               variant="contained"
+              fullWidth
               color="primary"
               onClick={(event) => {
                 createUserWithEmailAndPasswordHandler(event, email, password);
@@ -102,11 +101,10 @@ const SignUp = () => {
           </form>
           <p>
             Already have an account?{" "}
-            <Link to="/" className="text-blue-500 hover:text-blue-600">
+            <Button component={Link} color="primary" to="/">
               Sign in here
-            </Link>
+            </Button>
           </p>
-        </Box>
       </Grid>
     </Grid>
   );
