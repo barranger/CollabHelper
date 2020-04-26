@@ -34,7 +34,7 @@ const NewContact = ({onAdded}) => {
         <TextField fullWidth label="Email Address" type="email" value={email} onChange={ e => setEmail(e.target.value)} />
       </Grid>
       <Grid item xs={4}>
-        <Button type="submit" variant="contained" color="primary" >
+        <Button type="submit" variant="contained" disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name} color="primary" >
           Add Contact
         </Button>
       </Grid>
