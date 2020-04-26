@@ -57,7 +57,6 @@ const RequestItem = ({ tripId }) => {
 
   const requestItem = () => {
     console.log("I will add the item", item);
-
     addItemToTrip(user, tripId, item);
   };
   useEffect(() => {
@@ -78,8 +77,6 @@ const RequestItem = ({ tripId }) => {
 
   return (
     <div>
-      <MultiListView>
-      </MultiListView>
       <Box>
         <form
           onSubmit={(e) => {
@@ -98,15 +95,9 @@ const RequestItem = ({ tripId }) => {
                 fullWidth
                 onChange={(e) => setItem(e.target.value)}
               />
-              <TextField
-                //id="standard-textarea"
-                value={itemList}
-                label="What items would you like to request?"
-                fullWidth
-                placeholder="Placeholder"
-                onChange={(e) => setItemList(e.target.value)}
-                multiline
-              />
+              
+              <MultiListView>
+              </MultiListView>
               <Button
                 className={classes.button}
                 disabled={!item || item.length === 0}
@@ -127,6 +118,8 @@ const RequestItem = ({ tripId }) => {
                 You have requested:
               </Typography>
               {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(i => <Typography key={i.user.uid}>{i.requestedItem}</Typography>)}
+              <MultiListView>
+              </MultiListView>
             </>
           )}
         </form>
