@@ -1,10 +1,11 @@
 import React, {useState, useContext} from 'react';
-import {TextField, Button} from '@material-ui/core';
+import {Button} from '@material-ui/core';
 import { makeStyles } from "@material-ui/core/styles";
 import { functions } from "../firebase";
 import { UserContext } from "../providers/UserProvider";
 import {saveNewTrip} from '../services/tripService';
 import { DateTimePicker } from "@material-ui/pickers";
+import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -33,7 +34,7 @@ const GroceryTrip = props => {
 
   return (
     <>
-      <TextField fullWidth label="Where are you going" onChange={e => setWhere(e.target.value)} value={where} />
+      <TextBox fullWidth label="Where are you going" onChange={e => setWhere(e.target.value)} value={where} />
       <DateTimePicker
         value={when}
         disablePast

@@ -1,8 +1,9 @@
 import React, {useState, useContext} from 'react';
 import { UserContext } from "../providers/UserProvider";
-import {ListItem, Grid, TextField, Button} from '@material-ui/core';
+import {ListItem, Grid, Button} from '@material-ui/core';
 import {saveNewContact} from '../services/contactService';
 
+import TextBox from './TextBox';
 
 
 
@@ -25,21 +26,21 @@ const NewContact = ({onAdded}) => {
   return (
 
     <form onSubmit={addNewContact}>
-  <ListItem>
-    <Grid container spacing={4}>
-      <Grid item xs={4}>
-        <TextField fullWidth label="Full Name" value={name} onChange={ e => setName(e.target.value)} />
-      </Grid>
-      <Grid item xs={4}>
-        <TextField fullWidth label="Email Address" type="email" value={email} onChange={ e => setEmail(e.target.value)} />
-      </Grid>
-      <Grid item xs={4}>
-        <Button type="submit" variant="contained" disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name} color="primary" >
-          Add Contact
-        </Button>
-      </Grid>
-    </Grid>
-  </ListItem>
+      <ListItem>
+        <Grid container spacing={4}>
+          <Grid item xs={5} >
+            <TextBox fullWidth label="Full Name" value={name} onChange={ e => setName(e.target.value)} />
+          </Grid>
+          <Grid item xs={5}>
+            <TextBox fullWidth label="Email Address" type="email" value={email} onChange={ e => setEmail(e.target.value)} />
+          </Grid>
+          <Grid item xs={2} style={{display: "flex", flexDirection: "column-reverse"}}>
+            <Button type="submit" variant="contained" disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name} color="primary" >
+              Add
+            </Button>
+          </Grid>
+        </Grid>
+      </ListItem>
     </form>
 )
 };

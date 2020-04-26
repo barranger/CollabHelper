@@ -32,7 +32,7 @@ const theme = createMuiTheme({
   overrides: {
     MuiTextField: {
       root: {
-        border: '1px solid black',
+  //      border: '1px solid black',
       } 
     }
   }
