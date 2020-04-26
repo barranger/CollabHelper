@@ -126,7 +126,7 @@ const RequestItem = ({ tripId }) => {
               <Typography>
                 You have requested:
               </Typography>
-              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(i => <Typography key={i.user.uid}>{i.requestItem}</Typography>)}
+              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(i => <Typography key={i.user.uid}>{i.requestedItem}</Typography>)}
             </>
           )}
         </form>
