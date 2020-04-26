@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Typography, TextField, Button } from "@material-ui/core";
-import Box from "../controls/Box";
+import { Typography, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { getTripById, addItemToTrip } from "../services/tripService";
 import RequestDialog from "../controls/RequestDialog";
 import { UserContext } from "../providers/UserProvider";
+import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
   whiteBg: {
@@ -76,7 +76,6 @@ const RequestItem = ({ tripId }) => {
 
   return (
     <div>
-      <Box>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -88,7 +87,7 @@ const RequestItem = ({ tripId }) => {
 
           {!myTrip && !alreadyReq && (
             <>
-              <TextField
+              <TextBox
                 value={item}
                 label="What do you need"
                 fullWidth
@@ -117,7 +116,6 @@ const RequestItem = ({ tripId }) => {
             </>
           )}
         </form>
-      </Box>
       <RequestDialog open={open} setOpen={setOpen} requestItem={requestItem} />
     </div>
   );
