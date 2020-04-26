@@ -49,7 +49,7 @@ const SignIn = () => {
           </div>
         )}
         <form className="">
-          <Typography className={[classes.text, classes.header]} variant="h4" component="h2">CollabHelper</Typography>
+          <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
           <TextBox
             className={classes.text}
             fullWidth

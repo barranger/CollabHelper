@@ -50,7 +50,7 @@ const PasswordReset = () => {
     spacing={0}>
     <Grid item className={classes.box} xs={12} lg={4}>
         <form action="">
-          <Typography className={[classes.text, classes.header]} variant="h4" component="h2">CollabHelper</Typography>
+          <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
           {emailHasBeenSent && (
             <div >
               An email has been sent to you!

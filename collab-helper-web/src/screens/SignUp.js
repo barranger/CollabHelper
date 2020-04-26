@@ -56,7 +56,7 @@ const SignUp = () => {
       spacing={0}
     >
       <Grid item className={classes.box} xs={12} lg={4}>
-          <Typography className={[classes.text, classes.header]} variant="h4" component="h2">CollabHelper</Typography>
+          <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
           {error !== null && (
             <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
               {error}

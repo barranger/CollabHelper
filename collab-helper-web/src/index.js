@@ -6,6 +6,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const theme = createMuiTheme({
   palette: {
@@ -17,9 +18,6 @@ const theme = createMuiTheme({
     },
     background: '#bccbde',
     cardBackground: '#bccbde',
-    // text: {
-    //   primary: '#fff'
-    // }
   },
 
   typography: {
@@ -42,6 +40,7 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
+        <CssBaseline />
         <App />
       </MuiPickersUtilsProvider>
     </ThemeProvider>

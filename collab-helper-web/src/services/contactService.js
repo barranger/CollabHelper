@@ -2,17 +2,20 @@ import {firestore} from "../firebase";
 import firebase from "firebase/app";
 
 
-export const saveNewContact = async (user, name, email) => {
+export const saveNewContact = async (user, name, email, phone) => {
   console.log('I have the user', user);
 
   if (!user) return;
   const contactRef = firestore.doc(`contacts/${user.uid}`);
   const snapshot = await contactRef.get();
+  if (/^(\()?\s{3}(\))?(-|\s)?\s{3}(-|\s)\s{4}$/.test(phone)) {
+    phone = null;
+  }
   if (!snapshot.exists) {
     try {
       await contactRef.set({
         contacts: [
-          { name, email}
+          { name, email, phone}
         ]
       });
     } catch (error) {
@@ -20,7 +23,7 @@ export const saveNewContact = async (user, name, email) => {
     }
   }
   else {
-    contactRef.update({ contacts: firebase.firestore.FieldValue.arrayUnion({ name, email})})
+    contactRef.update({ contacts: firebase.firestore.FieldValue.arrayUnion({ name, email, phone})})
   }
 }
 

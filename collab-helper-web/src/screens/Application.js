@@ -39,7 +39,7 @@ function Application() {
             </Location>
           </Grid>
           <Grid item xs={6}>
-            <Typography className={[classes.text, classes.header]} variant="h4" component="h2">CollabHelper</Typography>
+            <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
               <Router>
                 <ProfilePage path="/" />
                 <GroceryTrip path="/trip" />
