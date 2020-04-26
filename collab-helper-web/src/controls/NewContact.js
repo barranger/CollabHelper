@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { UserContext } from "../providers/UserProvider";
-import { ListItem, Grid, TextField, Button } from '@material-ui/core';
-import { saveNewContact } from '../services/contactService';
+import {ListItem, Grid, Button} from '@material-ui/core';
+import {saveNewContact} from '../services/contactService';
 import InputMask from "react-input-mask";
 
+import TextBox from './TextBox';
 
 
 
@@ -31,20 +32,22 @@ const NewContact = ({ onAdded }) => {
       <ListItem>
         <Grid container spacing={4}>
           <Grid item xs={4}>
-            <TextField fullWidth label="Full Name" value={name} onChange={e => setName(e.target.value)} />
+            <TextBox fullWidth label="Full Name" value={name} onChange={e => setName(e.target.value)} />
           </Grid>
           <Grid item xs={4}>
-            <TextField fullWidth label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            <TextBox fullWidth label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} />
           </Grid>
           <Grid item xs={4}>
             <InputMask
-              mask="(999) 999-9999"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={e => { 
+                const newVal = e.target.value;
+                setPhone(newVal)
+              }}
               maskChar=' '
               alwaysShowMask
             >
-              {() => <TextField
+              {() => <TextBox
                 fullWidth
                 label="Phone Number"
                 type="text"

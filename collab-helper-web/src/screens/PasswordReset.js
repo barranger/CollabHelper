@@ -1,23 +1,24 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import { Button, TextField, Grid, Typography } from '@material-ui/core';
+import { Button, Grid, Typography } from '@material-ui/core';
 import { auth } from "../firebase";
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '../controls/Box';
+import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
-  box: {
-    backgroundColor: theme.cardBackground,
-    padding: '2.5em',
-    marginTop: '5em',
-    borderRadius: 12
-  },
   text: {
     marginTop: 14,
     marginBottom: 14,
   },
+  header: {
+    color: theme.palette.primary.main,
+    fontWeight: '900',
+  },
   button: {
     marginBottom: 14
+  },
+  root: {
+    marginTop: '4em',
   }
 }));
 
@@ -47,11 +48,9 @@ const PasswordReset = () => {
     justify="center"
     className={classes.root} 
     spacing={0}>
-    <Grid item className={classes.box} xs={6}>
-      <Box>
+    <Grid item className={classes.box} xs={12} lg={4}>
         <form action="">
-
-        <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
+          <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
           {emailHasBeenSent && (
             <div >
               An email has been sent to you!
@@ -62,8 +61,8 @@ const PasswordReset = () => {
               {error}
             </div>
           )}
-          <TextField
-            label="Email"
+          <TextBox
+            label="Email:"
             type="email"
             value={email}
             onChange={e => setEmail(e.currentTarget.value)}
@@ -73,13 +72,13 @@ const PasswordReset = () => {
           <Button  className={classes.button}
             variant="contained"
             color="primary"
+            fullWidth
             onClick={sendResetEmail}
           >
             Send me a reset link
           </Button>
         </form>
-        <Link to ="/"> &larr; back to sign in page</Link>
-        </Box>
+        <Button color="primary" component={Link} to ="/"> &larr; back to sign in page</Button>
       </Grid>
       </Grid>
   );

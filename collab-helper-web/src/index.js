@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
@@ -10,14 +11,29 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#431c5d',
+      main: '#00A349',
     },
     secondary: {
-      main: '#cdd422',
+      main: '#0040A3',
     },
     background: '#bccbde',
     cardBackground: '#bccbde',
   },
+
+  typography: {
+    fontFamily: 'Lato, sans-serif',
+    button: {
+      textTransform: 'none'
+    }
+  },
+
+  overrides: {
+    MuiTextField: {
+      root: {
+  //      border: '1px solid black',
+      } 
+    }
+  }
 });
 
 ReactDOM.render(
