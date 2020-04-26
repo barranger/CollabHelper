@@ -39,10 +39,10 @@ const NewContact = ({ onAdded }) => {
           </Grid>
           <Grid item xs={4}>
             <InputMask
-              mask="(999) 999-9999"
               value={phone}
               onChange={e => { 
-                setPhone(e.target.value)
+                const newVal = e.target.value;
+                setPhone(newVal)
               }}
               maskChar=' '
               alwaysShowMask
