@@ -1,9 +1,9 @@
-import React from "react";
-import {makeStyles} from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Container from "@material-ui/core/Container";
-import Application from "./screens/Application";
-import UserProvider from "./providers/UserProvider";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Container from '@material-ui/core/Container';
+import Application from './screens/Application';
+import UserProvider from './providers/UserProvider';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     backgroundColor: theme.background,
     color: 'white',
-    minHeight: '100vh'
+    minHeight: '100vh',
   },
 }));
 

@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { Link } from "@reach/router";
-import { auth } from "../firebase";
-import { generateUserDocument } from "../firebase";
-import { TextField, Typography, Button, Grid } from "@material-ui/core";
-import Box from "../controls/Box";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from 'react';
+import { Link } from '@reach/router';
+import {
+  TextField, Typography, Button, Grid,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { auth, generateUserDocument } from '../firebase';
+
+import Box from '../controls/Box';
 
 const useStyles = makeStyles((theme) => ({
   box: {
     backgroundColor: theme.cardBackground,
-    padding: "2.5em",
-    marginTop: "5em",
+    padding: '2.5em',
+    marginTop: '5em',
     borderRadius: 12,
   },
   text: {
@@ -20,29 +22,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState(null);
   const createUserWithEmailAndPasswordHandler = async (
     event,
     email,
-    password
+    password,
   ) => {
     event.preventDefault();
     try {
       const { user } = await auth.createUserWithEmailAndPassword(
         email,
-        password
+        password,
       );
       generateUserDocument(user, { displayName });
     } catch (error) {
-      setError("Error Signing up with email and password");
+      setError('Error Signing up with email and password');
     }
 
-    setEmail("");
-    setPassword("");
-    setDisplayName("");
+    setEmail('');
+    setPassword('');
+    setDisplayName('');
   };
 
   const classes = useStyles();
@@ -101,7 +103,8 @@ const SignUp = () => {
             </Button>
           </form>
           <p>
-            Already have an account?{" "}
+            Already have an account?
+            {' '}
             <Link to="/" className="text-blue-500 hover:text-blue-600">
               Sign in here
             </Link>

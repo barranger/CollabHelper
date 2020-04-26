@@ -1,29 +1,30 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Typography, TextField, Button } from "@material-ui/core";
-import Box from "../controls/Box";
-import { makeStyles } from "@material-ui/core/styles";
-import { getTripById, addItemToTrip } from "../services/tripService";
-import RequestDialog from "../controls/RequestDialog";
-import { UserContext } from "../providers/UserProvider";
+import React, { useEffect, useState, useContext } from 'react';
+import { Typography, TextField, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '../controls/Box';
+import { getTripById, addItemToTrip } from '../services/tripService';
+import RequestDialog from '../controls/RequestDialog';
+import { UserContext } from '../providers/UserProvider';
+import Logger from '../services/loggingService';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   whiteBg: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
   },
   button: {
     marginTop: 14,
   },
 }));
 
-const renderMyTrip = ( myTrip, trip ) => {
-  if(!myTrip) {
-    return;
+const renderMyTrip = (myTrip, trip) => {
+  if (!myTrip) {
+    return null;
   }
 
   const { items } = trip;
 
-  if(!items) {
-    return <Typography>No items have been requested yet.</Typography>
+  if (!items) {
+    return <Typography>No items have been requested yet.</Typography>;
   }
 
   return (
@@ -36,26 +37,28 @@ const renderMyTrip = ( myTrip, trip ) => {
       <ul>
         { items.map((i) => (
           <li key={i.user.uid}>
-            {i.user.displayName}: {i.requestedItem}
+            {i.user.displayName}
+            :
+            {i.requestedItem}
           </li>
         ))}
       </ul>
     </>
-  )
-}
+  );
+};
 
 const RequestItem = ({ tripId }) => {
   const [loaded, setLoaded] = useState(false);
   const [trip, setTrip] = useState({});
-  const [item, setItem] = useState("");
+  const [item, setItem] = useState('');
   const [open, setOpen] = useState(false);
   const classes = useStyles();
 
   const user = useContext(UserContext);
 
   const requestItem = () => {
-    console.log("I will add the item", item);
-    
+    Logger.log('I will add the item', item);
+
     addItemToTrip(user, tripId, item);
   };
   useEffect(() => {
@@ -70,9 +73,8 @@ const RequestItem = ({ tripId }) => {
   });
 
   const myTrip = trip.uid === user.uid;
-  const alreadyReq =
-    trip.items &&
-    trip.items.filter((i) => i.user && i.user.uid === user.uid).length > 0;
+  const alreadyReq = trip.items
+    && trip.items.filter((i) => i.user && i.user.uid === user.uid).length > 0;
 
   return (
     <div>
@@ -83,8 +85,14 @@ const RequestItem = ({ tripId }) => {
             setOpen(true);
           }}
         >
-          <Typography>Request something from {trip.where}</Typography>
-          <Typography>on {trip.when}</Typography>
+          <Typography>
+            Request something from
+            {trip.where}
+          </Typography>
+          <Typography>
+            on
+            {trip.when}
+          </Typography>
 
           {!myTrip && !alreadyReq && (
             <>
@@ -106,14 +114,16 @@ const RequestItem = ({ tripId }) => {
             </>
           )}
 
-          { renderMyTrip( myTrip, trip ) }
+          { renderMyTrip(myTrip, trip) }
 
           {alreadyReq && (
             <>
               <Typography>
                 You have requested:
               </Typography>
-              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(i => <Typography key={i.user.uid}>{i.requestedItem}</Typography>)}
+              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(
+                (i) => <Typography key={i.user.uid}>{i.requestedItem}</Typography>,
+              )}
             </>
           )}
         </form>

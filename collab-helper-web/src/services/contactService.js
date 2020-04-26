@@ -1,9 +1,10 @@
-import {firestore} from "../firebase";
-import firebase from "firebase/app";
+import firebase from 'firebase/app';
+import { firestore } from '../firebase';
+import Logger from './loggingService';
 
 
 export const saveNewContact = async (user, name, email, phone) => {
-  console.log('I have the user', user);
+  Logger.log('I have the user', user);
 
   if (!user) return;
   const contactRef = firestore.doc(`contacts/${user.uid}`);
@@ -15,27 +16,29 @@ export const saveNewContact = async (user, name, email, phone) => {
     try {
       await contactRef.set({
         contacts: [
-          { name, email, phone}
-        ]
+          { name, email, phone },
+        ],
       });
     } catch (error) {
-      console.error("Error creating contact document", error);
+      Logger.error('Error creating contact document', error);
     }
+  } else {
+    contactRef.update({
+      contacts: firebase.firestore.FieldValue.arrayUnion({ name, email, phone }),
+    });
   }
-  else {
-    contactRef.update({ contacts: firebase.firestore.FieldValue.arrayUnion({ name, email, phone})})
-  }
-}
+};
 
-export const getContactDoc = async uid => {
+export const getContactDoc = async (uid) => {
   if (!uid) return null;
   try {
     const contactDoc = await firestore.doc(`contacts/${uid}`).get();
     return {
       uid,
-      ...contactDoc.data()
+      ...contactDoc.data(),
     };
   } catch (error) {
-    console.error("Error fetching contact", error);
+    Logger.error('Error fetching contact', error);
   }
+  return null;
 };

@@ -1,9 +1,10 @@
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-import "firebase/analytics";
-import "firebase/functions";
-import { firebaseConfig } from "./firebase.config";
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
+import 'firebase/analytics';
+import 'firebase/functions';
+import firebaseConfig from './firebase.config';
+import Logger from './services/loggingService';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -19,9 +20,23 @@ export const signInWithGoogle = () => {
   auth.signInWithPopup(provider);
 };
 
+const getUserDocument = async (uid) => {
+  if (!uid) return null;
+  try {
+    const userDocument = await firestore.doc(`users/${uid}`).get();
+    return {
+      uid,
+      ...userDocument.data(),
+    };
+  } catch (error) {
+    Logger.error('Error fetching user', error);
+  }
+  return null;
+};
+
 // email / password authentication set-up
 export const generateUserDocument = async (user, additionalData) => {
-  if (!user) return;
+  if (!user) return null;
   const userRef = firestore.doc(`users/${user.uid}`);
   const snapshot = await userRef.get();
   if (!snapshot.exists) {
@@ -31,23 +46,11 @@ export const generateUserDocument = async (user, additionalData) => {
         displayName,
         email,
         photoURL,
-        ...additionalData
+        ...additionalData,
       });
     } catch (error) {
-      console.error("Error creating user document", error);
+      Logger.error('Error creating user document', error);
     }
   }
   return getUserDocument(user.uid);
-};
-const getUserDocument = async uid => {
-  if (!uid) return null;
-  try {
-    const userDocument = await firestore.doc(`users/${uid}`).get();
-    return {
-      uid,
-      ...userDocument.data()
-    };
-  } catch (error) {
-    console.error("Error fetching user", error);
-  }
 };
