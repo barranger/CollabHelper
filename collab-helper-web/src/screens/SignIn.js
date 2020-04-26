@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from '@reach/router';
-import {
-  TextField, Typography, Button, Grid,
-} from '@material-ui/core';
+import { Typography, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { auth, analytics, signInWithGoogle } from '../firebase';
-import Box from '../controls/Box';
+import TextBox from '../controls/TextBox';
 import Logger from '../services/loggingService';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   text: {
-    marginTop: 14,
     marginBottom: 14,
+  },
+  header: {
+    color: theme.palette.primary.main,
+    fontWeight: '900',
+  },
+  root: {
+    marginTop: '4em',
   },
 }));
 
@@ -40,57 +44,58 @@ const SignIn = () => {
       className={classes.root}
       spacing={0}
     >
-      <Grid item className={classes.box} xs={6}>
-        <Box>
+      <Grid item className={classes.box} xs={12} lg={4}>
 
-          {error !== null && (
-          <div>
-            {error}
-          </div>
-          )}
-          <form className="">
-            <Typography className={classes.text} variant="h4" component="h2">Collab(oration) Helper</Typography>
-            <TextField
-              className={classes.text}
-              fullWidth
-              type="email"
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
-            />
-            <TextField
-              fullWidth
-              className={classes.text}
-              type="password"
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-            />
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={(event) => {
-                signInWithEmailAndPasswordHandler(event);
-              }}
-            >
-              Sign in
-            </Button>
-          </form>
-          <p>or</p>
+        {error !== null && (
+        <div>
+          {error}
+        </div>
+        )}
+        <form className="">
+          <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
+          <TextBox
+            className={classes.text}
+            fullWidth
+            label="Email:"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+          />
+          <TextBox
+            fullWidth
+            className={classes.text}
+            type="password"
+            label="Password:"
+            value={password}
+            onChange={(e) => setPassword(e.currentTarget.value)}
+          />
           <Button
+            color="primary"
             variant="contained"
-            color="secondary"
-            onClick={signInWithGoogle}
+            fullWidth
+            onClick={(event) => {
+              signInWithEmailAndPasswordHandler(event, email, password);
+            }}
           >
-            Sign in with Google
+            Sign in
           </Button>
-          <p>
-            <Link to="signUp">Sign up here</Link>
-            {' '}
-            |
-            <Link to="passwordReset">Forgot Password?</Link>
-          </p>
-        </Box>
+        </form>
+        <p>OR</p>
+        <Button
+          variant="contained"
+          color="secondary"
+          fullWidth
+          onClick={signInWithGoogle}
+        >
+          Sign in with Google
+        </Button>
+        <p>
+          <Button component={Link} to="passwordReset" color="primary">Forgot Password?</Button>
+          <br />
+          Don&apos;t have an account?
+          {' '}
+          <Button component={Link} color="primary" to="signUp">Sign up</Button>
+        </p>
       </Grid>
     </Grid>
   );

@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from '@reach/router';
-import {
-  TextField, Typography, Button, Grid,
-} from '@material-ui/core';
+import { Typography, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { auth, generateUserDocument } from '../firebase';
-
-import Box from '../controls/Box';
+import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
-  box: {
-    backgroundColor: theme.cardBackground,
-    padding: '2.5em',
-    marginTop: '5em',
-    borderRadius: 12,
-  },
   text: {
     marginTop: 14,
     marginBottom: 14,
+  },
+  header: {
+    color: theme.palette.primary.main,
+    fontWeight: '900',
+  },
+  root: {
+    marginTop: '4em',
   },
 }));
 
@@ -26,11 +24,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState(null);
-  const createUserWithEmailAndPasswordHandler = async (
-    event,
-    email,
-    password,
-  ) => {
+  const createUserWithEmailAndPasswordHandler = async (event) => {
     event.preventDefault();
     try {
       const { user } = await auth.createUserWithEmailAndPassword(
@@ -38,7 +32,7 @@ const SignUp = () => {
         password,
       );
       generateUserDocument(user, { displayName });
-    } catch (error) {
+    } catch (err) {
       setError('Error Signing up with email and password');
     }
 
@@ -56,60 +50,57 @@ const SignUp = () => {
       className={classes.root}
       spacing={0}
     >
-      <Grid item className={classes.box} xs={6}>
-        <Box>
-          <Typography className={classes.text} variant="h4" component="h2">
-            Collab(oration) Helper
-          </Typography>
-          {error !== null && (
-            <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
-              {error}
-            </div>
-          )}
-          <form className="">
-            <TextField
-              type="text"
-              fullWidth
-              className={classes.text}
-              label="Display Name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.currentTarget.value)}
-            />
+      <Grid item className={classes.box} xs={12} lg={4}>
+        <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
+        {error !== null && (
+        <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
+          {error}
+        </div>
+        )}
+        <form className="">
+          <TextBox
+            type="text"
+            fullWidth
+            className={classes.text}
+            label="Display Name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.currentTarget.value)}
+          />
 
-            <TextField
-              type="email"
-              fullWidth
-              className={classes.text}
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
-            />
-            <TextField
-              type="password"
-              fullWidth
-              className={classes.text}
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={(event) => {
-                createUserWithEmailAndPasswordHandler(event, email, password);
-              }}
-            >
-              Sign up
-            </Button>
-          </form>
-          <p>
-            Already have an account?
-            {' '}
-            <Link to="/" className="text-blue-500 hover:text-blue-600">
-              Sign in here
-            </Link>
-          </p>
-        </Box>
+          <TextBox
+            type="email"
+            fullWidth
+            className={classes.text}
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+          />
+          <TextBox
+            type="password"
+            fullWidth
+            className={classes.text}
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.currentTarget.value)}
+          />
+          <Button
+            variant="contained"
+            fullWidth
+            color="primary"
+            onClick={(event) => {
+              createUserWithEmailAndPasswordHandler(event, email, password);
+            }}
+          >
+            Sign up
+          </Button>
+        </form>
+        <p>
+          Already have an account?
+          {' '}
+          <Button component={Link} color="primary" to="/">
+            Sign in here
+          </Button>
+        </p>
       </Grid>
     </Grid>
   );

@@ -10,13 +10,28 @@ import App from './App';
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#431c5d',
+      main: '#00A349',
     },
     secondary: {
-      main: '#cdd422',
+      main: '#0040A3',
     },
     background: '#bccbde',
     cardBackground: '#bccbde',
+  },
+
+  typography: {
+    fontFamily: 'Lato, sans-serif',
+    button: {
+      textTransform: 'none',
+    },
+  },
+
+  overrides: {
+    MuiTextField: {
+      root: {
+        //      border: '1px solid black',
+      },
+    },
   },
 });
 

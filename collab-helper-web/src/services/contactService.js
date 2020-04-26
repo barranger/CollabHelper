@@ -6,17 +6,18 @@ import Logger from './loggingService';
 export const saveNewContact = async (user, name, email, phone) => {
   Logger.log('I have the user', user);
 
+  let validPhone = phone;
   if (!user) return;
   const contactRef = firestore.doc(`contacts/${user.uid}`);
   const snapshot = await contactRef.get();
   if (/^(\()?\s{3}(\))?(-|\s)?\s{3}(-|\s)\s{4}$/.test(phone)) {
-    phone = null;
+    validPhone = null;
   }
   if (!snapshot.exists) {
     try {
       await contactRef.set({
         contacts: [
-          { name, email, phone },
+          { name, email, validPhone },
         ],
       });
     } catch (error) {
@@ -24,7 +25,7 @@ export const saveNewContact = async (user, name, email, phone) => {
     }
   } else {
     contactRef.update({
-      contacts: firebase.firestore.FieldValue.arrayUnion({ name, email, phone }),
+      contacts: firebase.firestore.FieldValue.arrayUnion({ name, email, validPhone }),
     });
   }
 };

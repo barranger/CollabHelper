@@ -5,12 +5,10 @@ import Container from '@material-ui/core/Container';
 import Application from './screens/Application';
 import UserProvider from './providers/UserProvider';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1,
     justifyContent: 'center',
-    backgroundColor: theme.background,
-    color: 'white',
     minHeight: '100vh',
   },
 }));

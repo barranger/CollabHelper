@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Typography, TextField, Button } from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '../controls/Box';
 import { getTripById, addItemToTrip } from '../services/tripService';
 import RequestDialog from '../controls/RequestDialog';
 import { UserContext } from '../providers/UserProvider';
+import TextBox from '../controls/TextBox';
 import Logger from '../services/loggingService';
 
 const useStyles = makeStyles(() => ({
@@ -78,56 +78,54 @@ const RequestItem = ({ tripId }) => {
 
   return (
     <div>
-      <Box>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setOpen(true);
-          }}
-        >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
+      >
+        <Typography>
+          Request something from
+          {trip.where}
+        </Typography>
+        <Typography>
+          on
+          {trip.when}
+        </Typography>
+
+        {!myTrip && !alreadyReq && (
+        <>
+          <TextBox
+            value={item}
+            label="What do you need"
+            fullWidth
+            onChange={(e) => setItem(e.target.value)}
+          />
+          <Button
+            className={classes.button}
+            disabled={!item || item.length === 0}
+            type="submit"
+            variant="contained"
+            color="primary"
+          >
+            Request Item
+          </Button>
+        </>
+        )}
+
+        { renderMyTrip(myTrip, trip) }
+
+        {alreadyReq && (
+        <>
           <Typography>
-            Request something from
-            {trip.where}
+            You have requested:
           </Typography>
-          <Typography>
-            on
-            {trip.when}
-          </Typography>
-
-          {!myTrip && !alreadyReq && (
-            <>
-              <TextField
-                value={item}
-                label="What do you need"
-                fullWidth
-                onChange={(e) => setItem(e.target.value)}
-              />
-              <Button
-                className={classes.button}
-                disabled={!item || item.length === 0}
-                type="submit"
-                variant="contained"
-                color="primary"
-              >
-                Request Item
-              </Button>
-            </>
+          {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(
+            (i) => <Typography key={i.user.uid}>{i.requestedItem}</Typography>,
           )}
-
-          { renderMyTrip(myTrip, trip) }
-
-          {alreadyReq && (
-            <>
-              <Typography>
-                You have requested:
-              </Typography>
-              {trip.items.filter((i) => i.user && i.user.uid === user.uid).map(
-                (i) => <Typography key={i.user.uid}>{i.requestedItem}</Typography>,
-              )}
-            </>
-          )}
-        </form>
-      </Box>
+        </>
+        )}
+      </form>
       <RequestDialog open={open} setOpen={setOpen} requestItem={requestItem} />
     </div>
   );
