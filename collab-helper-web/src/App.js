@@ -8,7 +8,9 @@ import UserProvider from "./providers/UserProvider";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    minHeight: '100vh'
+    minHeight: '100vh',
+    margin: 0,
+    padding: 0,
   },
 }));
 

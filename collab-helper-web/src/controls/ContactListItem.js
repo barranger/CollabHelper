@@ -1,11 +1,12 @@
 import React from "react";
-import { ListItem, ListItemAvatar, ListItemText, Avatar, Typography } from "@material-ui/core";
+import { ListItem, ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
 const ContactListItem = ({ contact }) => {
   return (
     <ListItem alignItems="flex-start" key={contact.email}>
       <ListItemAvatar>
-        <Avatar src="/static/images/avatar/1.jpg" />
+        <AccountCircle color="secondary" style={{fontSize:50}} />
       </ListItemAvatar>
       <ListItemText
         primary={contact.name}

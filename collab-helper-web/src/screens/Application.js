@@ -1,17 +1,20 @@
-import React, { useContext }  from "react";
+import React, { useContext, useState } from "react";
 import { Router } from "@reach/router";
-import {Grid, Typography} from "@material-ui/core";
+import { Grid, Typography, AppBar, Button, Toolbar } from "@material-ui/core";
 import { UserContext } from "../providers/UserProvider";
-import {Location} from '@reach/router';
+import { Link, Location } from "@reach/router";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import ProfilePage from "./ProfilePage";
 import PasswordReset from "./PasswordReset";
-import GroceryTrip from './GroceryTrip';
-import Sidebar from '../controls/Sidebar';
+import GroceryTrip from "./GroceryTrip";
 import RequestItem from "./RequestItem";
-import { makeStyles } from '@material-ui/core/styles';
-
+import { makeStyles } from "@material-ui/core/styles";
+import IconButton from '@material-ui/core/IconButton';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import { auth } from "../firebase";
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -19,41 +22,130 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     color: theme.palette.primary.main,
-    fontWeight: '900',
+    fontWeight: "900",
   },
   root: {
-    marginTop: '4em',
-  }
+    flex: 1,
+    minHeight: "100vh",
+  },
+  appBar: {
+    backgroundColor: "white",
+    paddingTop: "1em",
+    paddingLeft: "1em",
+  },
+  mainButton: {
+    marginTop: '1em',
+    marginBottom: '1em',
+    textDecoration: 'none',
+    display: 'flex',
+  },
+  buttonHolder: {
+    display: 'flex',
+    flexDirection: 'row-reverse'
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
 }));
 
 function Application() {
   const user = useContext(UserContext);
   const classes = useStyles();
-  return (
-        user ?
-        <Grid container>
-          <Grid item xs={2}></Grid>
-          <Grid item xs={2}>
-            <Location>
-              <Sidebar />
-            </Location>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
-              <Router>
-                <ProfilePage path="/" />
-                <GroceryTrip path="/trip" />
-                <RequestItem path="/trip/:tripId" />
-              </Router>
-          </Grid>
-        </Grid>
-      :
-        <Router>
-          <SignUp path="signUp" />
-          <SignIn path="/" />
-          <PasswordReset path = "passwordReset" />
-        </Router>
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const { displayName } = user || {};
 
+  const margin = 2;
+  return user ? (
+    <div className={classes.root}>
+      <Grid container>
+        <Grid item xs={1}></Grid>
+        <Grid item xs={10}>
+          <AppBar position="static" className={classes.appBar}>
+            <Toolbar>
+            <Typography
+              className={[classes.text, classes.header, classes.title].join(" ")}
+              variant="h5"
+              component="h3"
+            >
+              CollabHelper
+            </Typography>
+            <div>
+              <IconButton
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={(e) => { console.log('e is', e.currentTarget); setAnchorEl(e.currentTarget)}}
+                color="inherit"
+              >
+                <AccountCircle color="primary" fontSize="large" />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}                
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={()=>{setAnchorEl(null)}}
+              >
+                <MenuItem>{displayName}</MenuItem>
+                <MenuItem onClick={async () => {
+                    await auth.signOut();
+                    document.location.href = '/';
+                  }
+                }>Logout</MenuItem>
+              </Menu>
+            </div>
+            </Toolbar>
+          </AppBar>
+        </Grid>
+        <Grid item xs={1}></Grid>
+        <Grid item xs={margin}></Grid>
+        <Grid item xs={8} className={classes.buttonHolder}>
+          <Location>
+            {({ location }) => {
+              const link = location.pathname === "/trip" ? "/" : "/trip";
+              const text =
+                location.pathname === "/trip"
+                  ? "Modify My Network"
+                  : "Schedule a Grocery Trip";
+              return (
+                <Link to={link} className={classes.mainButton}>
+                  <Button variant="contained" color="primary">
+                    {text}
+                  </Button>
+                </Link>
+              );
+            }}
+          </Location>
+        </Grid>
+        <Grid item xs={margin}></Grid>
+        <Grid item xs={margin}></Grid>
+        <Grid item xs={8}>
+          <Router>
+            <ProfilePage path="/" />
+            <GroceryTrip path="/trip" />
+            <RequestItem path="/trip/:tripId" />
+          </Router>
+        </Grid>
+      </Grid>
+    </div>
+  ) : (
+    <Router>
+      <SignUp path="signUp" />
+      <SignIn path="/" />
+      <PasswordReset path="passwordReset" />
+    </Router>
   );
 }
 export default Application;

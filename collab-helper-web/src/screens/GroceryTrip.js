@@ -3,13 +3,14 @@ import {Button} from '@material-ui/core';
 import { makeStyles } from "@material-ui/core/styles";
 import { functions } from "../firebase";
 import { UserContext } from "../providers/UserProvider";
+import { Card } from '@material-ui/core';
 import {saveNewTrip} from '../services/tripService';
 import { KeyboardDateTimePicker } from "@material-ui/pickers";
 import TextBox from '../controls/TextBox';
 
 const useStyles = makeStyles((theme) => ({
-  button: {
-    marginTop: '2em'
+  root: {
+    padding: '1em'
   }
 }));
 
@@ -36,7 +37,7 @@ const GroceryTrip = props => {
   };
 
   return (
-    <>
+    <Card className={classes.root}>
       <TextBox fullWidth label="Where are you going" onChange={e => setWhere(e.target.value)} value={where} />
       <KeyboardDateTimePicker
         variant="inline"
@@ -50,7 +51,7 @@ const GroceryTrip = props => {
         fullWidth
       />
       <Button className={classes.button} variant="contained" disabled={!where || !when} color="primary" onClick={sendEmail}>Schedule Grocery Trip</Button>
-      </>
+      </Card>
   )
 }
 

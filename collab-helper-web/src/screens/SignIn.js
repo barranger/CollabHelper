@@ -41,7 +41,7 @@ const SignIn = () => {
     justify="center"
     className={classes.root} 
     spacing={0}>
-    <Grid item className={classes.box} xs={12} lg={4}>
+    <Grid item className={classes.box} xs={12} md={4}>
        
         {error !== null && (
           <div >
