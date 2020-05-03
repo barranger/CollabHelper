@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Typography, Button } from "@material-ui/core";
+import { Typography, Button, Card } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { getTripById, addItemToTrip } from "../services/tripService";
 import RequestDialog from "../controls/RequestDialog";
@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: 14,
   },
+  root: {
+    padding: '1em'
+  }
 }));
 
 const renderMyTrip = ( myTrip, trip ) => {
@@ -75,7 +78,7 @@ const RequestItem = ({ tripId }) => {
     trip.items.filter((i) => i.user && i.user.uid === user.uid).length > 0;
 
   return (
-    <div>
+    <Card className={classes.root}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -117,7 +120,7 @@ const RequestItem = ({ tripId }) => {
           )}
         </form>
       <RequestDialog open={open} setOpen={setOpen} requestItem={requestItem} />
-    </div>
+    </Card>
   );
 };
 
