@@ -12,26 +12,29 @@ const useStyles = makeStyles((theme) => ({
       outline: 'none',
       '& + label': {
         color: theme.palette.primary.main,
-      }
-    }
+      },
+    },
   },
   label: {
-    display: 'flex'
+    display: 'flex',
   },
   root: {
     display: 'flex',
-    flexDirection: 'column-reverse'
-  }
+    flexDirection: 'column-reverse',
+  },
 }));
 
-const TextBox = props => {
+const TextBox = (props) => {
   const classes = useStyles();
+  const {
+    className, onChange, value, label,
+  } = props;
   return (
-    <div className={[props.className, classes.root].join(' ')}>
-      <input className={classes.text} onChange={props.onChange} value={props.Value}></input>
-      <label className={classes.label}>{props.label}</label>
+    <div className={[className, classes.root].join(' ')}>
+      <input className={classes.text} onChange={onChange} value={value} />
+      <label className={classes.label}>{label}</label>
     </div>
-  )
+  );
 };
 
 export default TextBox;

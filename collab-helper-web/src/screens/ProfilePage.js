@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "../providers/UserProvider";
-import { List, ListSubheader, Card } from "@material-ui/core";
-import NewContact from "../controls/NewContact";
-import ContactListItem from "../controls/ContactListItem";
-import { getContactDoc } from "../services/contactService";
+import React, { useContext, useEffect, useState } from 'react';
+import { List, ListSubheader, Card } from '@material-ui/core';
+import { UserContext } from '../providers/UserProvider';
+import NewContact from '../controls/NewContact';
+import ContactListItem from '../controls/ContactListItem';
+import { getContactDoc } from '../services/contactService';
 
 
 const ProfilePage = () => {
@@ -22,10 +22,10 @@ const ProfilePage = () => {
   });
   return (
     <Card>
-    <List subheader={<ListSubheader>Your Contacts</ListSubheader>}>
-      {contacts.map((p) => (<ContactListItem key={p.email} contact={p} />))}
-      <NewContact onAdded={() => setLoaded(false)}/>
-    </List>
+      <List subheader={<ListSubheader>Your Contacts</ListSubheader>}>
+        {contacts.map((p) => (<ContactListItem key={p.email} contact={p} />))}
+        <NewContact onAdded={() => setLoaded(false)} />
+      </List>
     </Card>
   );
 };

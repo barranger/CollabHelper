@@ -1,30 +1,27 @@
-import {firestore} from "../firebase";
-import firebase from "firebase/app";
+import firebase from 'firebase/app';
+import { firestore } from '../firebase';
 
 
 export const saveNewTrip = async (user, where, when) => {
-  console.log('I have the user', user);
-
-  if (!user) return;
+  if (!user) return null;
 
   const doc = await firestore.collection('trips').add({
     uid: user.uid,
     where,
-    when
+    when,
   });
   return doc.id;
-}
+};
 
 export const getTripById = async (id) => {
-  
   const contactRef = firestore.doc(`trips/${id}`);
   const snapshot = await contactRef.get();
   return snapshot.data();
-}
+};
 
 export const addItemToTrip = async (user, tripId, requestedItem) => {
-  if(!user) return;
+  if (!user) return;
 
   const docRef = firestore.doc(`trips/${tripId}`);
-  await docRef.update({ items: firebase.firestore.FieldValue.arrayUnion({ user, requestedItem})})
-}
+  await docRef.update({ items: firebase.firestore.FieldValue.arrayUnion({ user, requestedItem }) });
+};
