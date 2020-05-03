@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-
-import App from './App';
-import * as serviceWorker from './serviceWorker';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import * as serviceWorker from './serviceWorker';
+import App from './App';
 
 const theme = createMuiTheme({
   palette: {
@@ -23,17 +22,17 @@ const theme = createMuiTheme({
   typography: {
     fontFamily: 'Lato, sans-serif',
     button: {
-      textTransform: 'none'
-    }
+      textTransform: 'none',
+    },
   },
 
   overrides: {
     MuiTextField: {
       root: {
-  //      border: '1px solid black',
-      } 
-    }
-  }
+        //      border: '1px solid black',
+      },
+    },
+  },
 });
 
 ReactDOM.render(
@@ -45,7 +44,7 @@ ReactDOM.render(
       </MuiPickersUtilsProvider>
     </ThemeProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
 
 // If you want your app to work offline and load faster, you can change

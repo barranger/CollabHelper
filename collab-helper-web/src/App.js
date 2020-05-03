@@ -1,14 +1,15 @@
-import React from "react";
-import {makeStyles} from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Container from "@material-ui/core/Container";
-import Application from "./screens/Application";
-import UserProvider from "./providers/UserProvider";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Container from '@material-ui/core/Container';
+import Application from './screens/Application';
+import UserProvider from './providers/UserProvider';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1,
-    minHeight: '100vh'
+    justifyContent: 'center',
+    minHeight: '100vh',
   },
 }));
 

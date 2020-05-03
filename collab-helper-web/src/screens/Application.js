@@ -1,16 +1,16 @@
-import React, { useContext }  from "react";
-import { Router } from "@reach/router";
-import {Grid, Typography} from "@material-ui/core";
-import { UserContext } from "../providers/UserProvider";
-import {Location} from '@reach/router';
-import SignIn from "./SignIn";
-import SignUp from "./SignUp";
-import ProfilePage from "./ProfilePage";
-import PasswordReset from "./PasswordReset";
+import React, { useContext } from 'react';
+import { Router, Location } from '@reach/router';
+import { Grid, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { UserContext } from '../providers/UserProvider';
+
+import SignIn from './SignIn';
+import SignUp from './SignUp';
+import ProfilePage from './ProfilePage';
+import PasswordReset from './PasswordReset';
 import GroceryTrip from './GroceryTrip';
 import Sidebar from '../controls/Sidebar';
-import RequestItem from "./RequestItem";
-import { makeStyles } from '@material-ui/core/styles';
+import RequestItem from './RequestItem';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -23,16 +23,17 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     marginTop: '4em',
-  }
+  },
 }));
 
 function Application() {
   const user = useContext(UserContext);
   const classes = useStyles();
   return (
-        user ?
+    user
+      ? (
         <Grid container>
-          <Grid item xs={2}></Grid>
+          <Grid item xs={2} />
           <Grid item xs={2}>
             <Location>
               <Sidebar />
@@ -40,19 +41,21 @@ function Application() {
           </Grid>
           <Grid item xs={6}>
             <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
-              <Router>
-                <ProfilePage path="/" />
-                <GroceryTrip path="/trip" />
-                <RequestItem path="/trip/:tripId" />
-              </Router>
+            <Router>
+              <ProfilePage path="/" />
+              <GroceryTrip path="/trip" />
+              <RequestItem path="/trip/:tripId" />
+            </Router>
           </Grid>
         </Grid>
-      :
+      )
+      : (
         <Router>
           <SignUp path="signUp" />
           <SignIn path="/" />
-          <PasswordReset path = "passwordReset" />
+          <PasswordReset path="passwordReset" />
         </Router>
+      )
 
   );
 }

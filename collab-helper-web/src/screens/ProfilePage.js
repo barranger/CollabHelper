@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "../providers/UserProvider";
-import { List, ListSubheader } from "@material-ui/core";
-import NewContact from "../controls/NewContact";
-import ContactListItem from "../controls/ContactListItem";
-import { getContactDoc } from "../services/contactService";
+import React, { useContext, useEffect, useState } from 'react';
+import { List, ListSubheader } from '@material-ui/core';
+import { UserContext } from '../providers/UserProvider';
+import NewContact from '../controls/NewContact';
+import ContactListItem from '../controls/ContactListItem';
+import { getContactDoc } from '../services/contactService';
 
 
 const ProfilePage = () => {
@@ -25,15 +25,14 @@ const ProfilePage = () => {
     return (
       <List subheader={<ListSubheader>People in your network</ListSubheader>}>
         {contacts.map((p) => (<ContactListItem key={p.email} contact={p} />))}
-        <NewContact onAdded={() => setLoaded(false)}/>
-      </List>
-    );
-  } else {
-    return (
-      <List subheader={<ListSubheader>People in your network</ListSubheader>}>
-        <NewContact onAdded={() => setLoaded(false)}/>
+        <NewContact onAdded={() => setLoaded(false)} />
       </List>
     );
   }
+  return (
+    <List subheader={<ListSubheader>People in your network</ListSubheader>}>
+      <NewContact onAdded={() => setLoaded(false)} />
+    </List>
+  );
 };
 export default ProfilePage;

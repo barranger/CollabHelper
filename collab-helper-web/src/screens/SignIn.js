@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "@reach/router";
-import { auth, analytics, signInWithGoogle } from "../firebase";
-import {Typography, Button, Grid} from '@material-ui/core';
+import React, { useState } from 'react';
+import { Link } from '@reach/router';
+import { Typography, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { auth, analytics, signInWithGoogle } from '../firebase';
 import TextBox from '../controls/TextBox';
+import Logger from '../services/loggingService';
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -15,20 +16,20 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     marginTop: '4em',
-  }
+  },
 }));
 
 const SignIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
   analytics.logEvent('Analytics from SignIn');
-  const signInWithEmailAndPasswordHandler = (event, email, password) => {
+  const signInWithEmailAndPasswordHandler = (event) => {
     event.preventDefault();
-    auth.signInWithEmailAndPassword(email, password).catch(error => {
-      setError("Error signing in with password and email!");
-      console.error("Error signing in with password and email", error);
+    auth.signInWithEmailAndPassword(email, password).catch((err) => {
+      setError('Error signing in with password and email!');
+      Logger.error('Error signing in with password and email', err);
     });
   };
 
@@ -36,17 +37,19 @@ const SignIn = () => {
 
   return (
 
-    <Grid container 
-    align="center"
-    justify="center"
-    className={classes.root} 
-    spacing={0}>
-    <Grid item className={classes.box} xs={12} lg={4}>
-       
+    <Grid
+      container
+      align="center"
+      justify="center"
+      className={classes.root}
+      spacing={0}
+    >
+      <Grid item className={classes.box} xs={12} lg={4}>
+
         {error !== null && (
-          <div >
-            {error}
-          </div>
+        <div>
+          {error}
+        </div>
         )}
         <form className="">
           <Typography className={[classes.text, classes.header].join(' ')} variant="h4" component="h2">CollabHelper</Typography>
@@ -56,7 +59,7 @@ const SignIn = () => {
             label="Email:"
             type="email"
             value={email}
-            onChange={(e, val) => setEmail(e.currentTarget.value)}
+            onChange={(e) => setEmail(e.currentTarget.value)}
           />
           <TextBox
             fullWidth
@@ -64,10 +67,13 @@ const SignIn = () => {
             type="password"
             label="Password:"
             value={password}
-            onChange={e => setPassword(e.currentTarget.value)}
+            onChange={(e) => setPassword(e.currentTarget.value)}
           />
-          <Button color="primary" variant="contained" fullWidth
-            onClick={event => {
+          <Button
+            color="primary"
+            variant="contained"
+            fullWidth
+            onClick={(event) => {
               signInWithEmailAndPasswordHandler(event, email, password);
             }}
           >
@@ -75,16 +81,23 @@ const SignIn = () => {
           </Button>
         </form>
         <p>OR</p>
-        <Button variant="contained" color="secondary" fullWidth
-          onClick={signInWithGoogle}>
+        <Button
+          variant="contained"
+          color="secondary"
+          fullWidth
+          onClick={signInWithGoogle}
+        >
           Sign in with Google
         </Button>
         <p>
-          <Button component={Link} to="passwordReset" color="primary">Forgot Password?</Button><br />
-          Don't have an account? <Button component={Link} color="primary" to="signUp">Sign up</Button>
+          <Button component={Link} to="passwordReset" color="primary">Forgot Password?</Button>
+          <br />
+          Don&apos;t have an account?
+          {' '}
+          <Button component={Link} color="primary" to="signUp">Sign up</Button>
         </p>
-     </Grid>
-     </Grid>
+      </Grid>
+    </Grid>
   );
 };
 export default SignIn;
